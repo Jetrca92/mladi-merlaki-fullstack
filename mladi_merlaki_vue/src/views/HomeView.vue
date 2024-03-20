@@ -29,7 +29,7 @@
                     
                 </h1>
             </div>
-            <div class="hero-body">
+            <div class="hero-body my-5">
                 <div class="columns is-multiline">
                     <div class="column is-one-fourth">
                         <div class="card is-shady">
