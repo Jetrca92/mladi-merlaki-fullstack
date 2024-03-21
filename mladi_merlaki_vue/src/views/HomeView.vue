@@ -2,9 +2,7 @@
     <div class="home">
 
         <section class="hero is-medium is-bold">
-            <div class="hero-head">
-                <NavBar />
-            </div>
+            
             
             <div class="hero-body">
                 <div class="container has-text-centered">

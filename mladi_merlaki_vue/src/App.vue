@@ -3,8 +3,12 @@
     
   </div>
   
+  <NavBar />
+
   
-  <HomeView />
+  <router-view/>
+  
+  
   
 
   <footer class="footer">

@@ -22,9 +22,8 @@ const toggleMobileMenu = () => {
   
     <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': showMobileMenu}">
       <div class="navbar-start">
-        <a class="navbar-item">
-          Home
-        </a>
+        <router-link to="/" class="navbar-item">Home</router-link>
+        
   
         <a class="navbar-item">
           Documentation
@@ -53,9 +52,8 @@ const toggleMobileMenu = () => {
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <a class="button is-info">
-              <strong>Sign up</strong>
-            </a>
+            <router-link to="/sign-up" class="button is-info"><strong>Sign up</strong></router-link>
+            
             <a class="button is-light">
               Log in
             </a>
