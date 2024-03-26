@@ -1,9 +1,14 @@
 <template>
-    <div class="home">
+
+    <div v-if="$store.state.isAuthenticated">
+        <section>
+
+        </section>
+    </div>
+
+    <div v-else>
 
         <section class="hero is-medium is-bold">
-            
-            
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h1 class="title">
