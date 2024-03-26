@@ -1,10 +1,19 @@
 <script setup>
-import axios from 'axios'
 import { ref } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+import axios from 'axios'
 
-const portfolio = {}
+const portfolio = ref({})
+
+const getPortfolio = () => {
+  axios.get(`api/v1/portfolio/portfolio/`)
+    .then(response => {
+      portfolio.value = response.data
+    })
+    .catch(error => {
+      console.error(error)
+    })
+}
+getPortfolio()
 
 </script>
 
@@ -22,7 +31,7 @@ const portfolio = {}
         </tr>
     </thead>
     <tbody>
-        <tr v-for="asset in portfolio">
+        <tr v-for="asset in portfolio.stocks">
             <td>{{ asset.stock.name }} ({{ asset.stock.symbol }})</td>
             <td class="has-text-right">{{ asset.shares }}</td>
             <td class="has-text-right">{{ asset.stock.price }}</td>
@@ -41,7 +50,7 @@ const portfolio = {}
         </tr>
     </thead>
     <tbody>
-        <tr v-for="asset in portfolio">
+        <tr v-for="asset in portfolio.crypto">
             <td>{{ asset.coin.name }} ({{ asset.coin.symbol|up }})</td>
             <td class="has-text-right">{{ asset.shares }}</td>
             <td class="has-text-right">{{ asset.coin.price }}</td>
@@ -54,11 +63,11 @@ const portfolio = {}
         </tr>
         <tr>
             <td colspan="3" class="has-text-right is-uppercase has-text-weight-bold">Cash</td>
-            <td class="has-text-right">{{ portfolio.cash }}</td>
+            <td class="has-text-right">{{ portfolio.cash }} $</td>
         </tr>
         <tr>
             <td colspan="3" class="has-text-right is-uppercase has-text-weight-bold">TOTAL</td>
-            <td class="has-text-right">{{ total }}</td>
+            <td class="has-text-right">total</td>
         </tr>
     </tfoot>
 </table>

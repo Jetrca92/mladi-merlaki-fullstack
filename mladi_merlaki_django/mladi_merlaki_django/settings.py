@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'djoser',
 
     'authentication',
+    'portfolio',
+    'marketdata',
 
 ]
 
