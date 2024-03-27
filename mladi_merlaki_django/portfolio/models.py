@@ -7,8 +7,8 @@ from marketdata.models import Stock, Cryptocurrency
 class Portfolio(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, related_name="owner")
     cash = models.FloatField(default=100000)
-    stocks = models.ForeignKey('StockPortfolio', on_delete=models.CASCADE, blank=True, null=True, related_name="portfolio_stocks")
-    crypto = models.ForeignKey('CryptoPortfolio', on_delete=models.CASCADE, blank=True, null=True, related_name="portfolio_crypto")
+    stocks = models.ManyToManyField('StockPortfolio', blank=True)
+    crypto = models.ManyToManyField('CryptoPortfolio', blank=True)
 
     def __str__(self):
         return f"{self.owner}"
