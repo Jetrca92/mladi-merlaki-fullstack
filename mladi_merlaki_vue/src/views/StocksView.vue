@@ -24,7 +24,7 @@
                         <label for="sort" class="label">Sort by:</label>
                         <div class="control">
                             <div class="select">
-                                <select name="sort" id="sort" v-model="selectedSort">
+                                <select name="sort" id="sort" v-model="selectedSort" @change="sortBy">
                                     <option value="-market_cap">Market cap descending</option>
                                     <option value="market_cap">Market cap ascending</option>
                                     <option value="-volume">Volume descending</option>
@@ -53,7 +53,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(stock, index) in stocks" :key="stock.id">
+                    <tr v-for="(stock, index) in sortedStocks" :key="stock.id">
                         <th scope="row">{{ index + 1 }}</th>
                         <td><a href="" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
                         <td>{{ stock.price}}</td>
@@ -74,9 +74,11 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 const stocks = ref({})
+const selectedSort = ref('-market_cap')
+
 const getPortfolio = () => {
     axios.get(`api/v1/marketdata/stocks/`)
         .then(response => {
@@ -88,4 +90,22 @@ const getPortfolio = () => {
         })
 }
 getPortfolio()
+
+const sortedStocks = computed(() => {
+    // Copy the stocks array to avoid mutating the original array
+    const copiedStocks = [...stocks.value]
+    
+    // Sort the copied stocks array based on the selected sorting criteria
+    return copiedStocks.sort((a, b) => {
+        // Compare the values based on the selected sorting criteria
+        if (a[selectedSort.value] < b[selectedSort.value]) {
+            return -1
+        } else if (a[selectedSort.value] > b[selectedSort.value]) {
+            return 1
+        } else {
+            return 0
+        }
+    })
+})
+
 </script>
