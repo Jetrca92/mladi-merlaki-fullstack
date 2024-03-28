@@ -5,14 +5,13 @@ import axios from 'axios'
 const portfolio = ref({})
 
 const getPortfolio = () => {
-  axios.get(`api/v1/portfolio/portfolio/`)
-    .then(response => {
-      portfolio.value = response.data
-      console.log(portfolio.value)
-    })
-    .catch(error => {
-      console.error(error)
-    })
+    axios.get(`api/v1/portfolio/portfolio/`)
+        .then(response => {
+            portfolio.value = response.data 
+        })
+        .catch(error => {
+        console.error(error)
+        })
 }
 getPortfolio()
 

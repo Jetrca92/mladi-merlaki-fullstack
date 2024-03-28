@@ -1,7 +1,8 @@
 from django.urls import path, include
 
-from portfolio import views
+from marketdata import views
+
 
 urlpatterns = [
-    path('portfolio/', views.PortfolioView.as_view()),
+    path('stocks/', views.StockmarketDataView.as_view()),
 ]
