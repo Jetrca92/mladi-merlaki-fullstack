@@ -14,24 +14,19 @@ const getPortfolio = () => {
       console.error(error)
     })
 }
-
 getPortfolio()
 
 const calculateTotal = () => {
     if (!portfolio.value.stocks || !portfolio.value.crypto) {
         return 0;
     }
-
     let total = portfolio.value.cash;
-
     for (const stock of portfolio.value.stocks) {
         total += stock.shares * stock.stock.price;
     }
-
     for (const coin of portfolio.value.crypto) {
         total += coin.shares * coin.coin.price;
     }
-
     return total;
 }
 

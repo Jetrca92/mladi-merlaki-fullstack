@@ -40,6 +40,7 @@ const logout = () => {
     <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': showMobileMenu}">
       <div class="navbar-start">
         <router-link to="/" class="navbar-item">Home</router-link>
+        <router-link to="/stocks" class="navbar-item">Stocks</router-link>
         <router-link to="/portfolio" class="navbar-item">Portfolio</router-link>
   
         <a class="navbar-item">
