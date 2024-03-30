@@ -15,6 +15,6 @@ class StockmarketDataView(APIView):
         
     def get(self, request, format=None):
         market_update(datetime.today)
-        stocks = Stock.objects.all()[0:20]
+        stocks = Stock.objects.all()[0:1000]
         serializer = StockSerializer(stocks, many=True)
         return Response(serializer.data)

@@ -9,7 +9,7 @@
                         <div class="control">
                             <div class="">
                                 <div class="is-half">
-                                    <input class="input" style="width: 50%;" type="text" placeholder="Company name" id="search" name="name" @keyup="delayedSearch" />
+                                    <input class="input" style="width: 50%;" type="text" placeholder="Company name" id="search" name="name" v-model="filterInput" />
                                 </div>
                                 
                             </div>
@@ -53,9 +53,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(stock, index) in sortedStocks" :key="stock.id">
-                        <th scope="row">{{ index + 1 }}</th>
-                        <td><a href="" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
+                    <tr v-for="(stock, index) in pagedStocks" :key="stock.id">
+                        <th scope="row">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</th>
+                        <td><a href="`/stock/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
                         <td>{{ stock.price}}</td>
                         <td>{{ stock.sector }}</td>
                         <td>{{ stock.volume}}</td>
@@ -67,6 +67,20 @@
             <div v-else>
                 No stocks found.
             </div>
+            <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+                <ul class="pagination-list">
+                    <li>
+                        <button class="pagination-previous" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">Previous</button>
+                    </li>
+                    <li v-for="pageNumber in totalPages" :key="pageNumber">
+                        <button class="pagination-link" :class="{ 'is-current': pageNumber === currentPage }" @click="goToPage(pageNumber)">{{ pageNumber }}</button>
+                    </li>
+                
+                    <li>
+                        <button class="pagination-next" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">Next</button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </section>
     
@@ -76,14 +90,18 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios'
-const stocks = ref({})
-const selectedSort = ref('-market_cap')
 
+const stocks = ref([])
+const selectedSort = ref('-market_cap')
+const filterInput = ref('')
+const itemsPerPage = 100
+let currentPage = ref(1)
+
+// Get stock data from API
 const getPortfolio = () => {
     axios.get(`api/v1/marketdata/stocks/`)
         .then(response => {
         stocks.value = response.data
-        
         })
         .catch(error => {
         console.error(error)
@@ -91,12 +109,10 @@ const getPortfolio = () => {
 }
 getPortfolio()
 
+// Filter and sort stocks
 const sortedStocks = computed(() => {
-    // Copy the stocks array to avoid mutating the original array
     const copiedStocks = [...stocks.value]
-    
-    // Sort the copied stocks array based on the selected sorting criteria
-    return copiedStocks.sort((a, b) => {
+    copiedStocks.sort((a, b) => {
         // Compare the values based on the selected sorting criteria
         if (a[selectedSort.value] < b[selectedSort.value]) {
             return -1
@@ -106,6 +122,23 @@ const sortedStocks = computed(() => {
             return 0
         }
     })
+    if(filterInput.value !== "") {
+        return copiedStocks.filter(stock => stock.name.toLowerCase().includes(filterInput.value.toLowerCase()));
+    } 
+    return copiedStocks
 })
 
+// Pagination
+const pagedStocks = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage
+    return sortedStocks.value.slice(startIndex, startIndex + itemsPerPage)
+})
+
+const totalPages = computed(() => Math.ceil(sortedStocks.value.length / itemsPerPage))
+
+const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+    }
+}
 </script>
