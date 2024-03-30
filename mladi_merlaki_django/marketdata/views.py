@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.utils.timezone import datetime
 
 from rest_framework import status
@@ -18,3 +19,17 @@ class StockmarketDataView(APIView):
         stocks = Stock.objects.all()[0:1000]
         serializer = StockSerializer(stocks, many=True)
         return Response(serializer.data)
+    
+
+class StockDataView(APIView):
+
+    def get_object(self, id):
+        try:
+            return Stock.objects.get(id=id)
+        except Stock.DoesNotExist:
+            raise Http404
+    def get(self, request, id, format=None):
+        stock = self.get_object(id)
+        serializer = StockSerializer(stock)
+        return Response(serializer.data)
+        

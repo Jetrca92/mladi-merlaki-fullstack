@@ -55,11 +55,11 @@
                 <tbody>
                     <tr v-for="(stock, index) in pagedStocks" :key="stock.id">
                         <th scope="row">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</th>
-                        <td><a href="`/stock/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
-                        <td>{{ stock.price}}</td>
+                        <td><a :href="`/stocks/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
+                        <td>${{ stock.price}}</td>
                         <td>{{ stock.sector }}</td>
-                        <td>{{ stock.volume}}</td>
-                        <td>{{ stock.market_cap}}</td>
+                        <td>${{ stock.volume}}</td>
+                        <td>${{ stock.market_cap}}</td>
                         <td>{{ stock.country }}</td>
                     </tr>
                 </tbody>
@@ -88,7 +88,7 @@
 
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 const stocks = ref([])
@@ -98,7 +98,7 @@ const itemsPerPage = 100
 let currentPage = ref(1)
 
 // Get stock data from API
-const getPortfolio = () => {
+const getStocksData = () => {
     axios.get(`api/v1/marketdata/stocks/`)
         .then(response => {
         stocks.value = response.data
@@ -107,7 +107,7 @@ const getPortfolio = () => {
         console.error(error)
         })
 }
-getPortfolio()
+onMounted(getStocksData)
 
 // Filter and sort stocks
 const sortedStocks = computed(() => {

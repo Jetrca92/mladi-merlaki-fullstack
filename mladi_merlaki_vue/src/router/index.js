@@ -4,6 +4,7 @@ import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
 import UserPortfolio from '../views/UserPortfolio.vue'
 import StocksView from '@/views/StocksView.vue'
+import StockPageView from '@/views/StockPageView.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     name: 'stocks',
     component: StocksView
   },
+  {
+    path: '/stocks/:id',
+    name: 'stockpage',
+    component: StockPageView
+  }
 ]
 
 const router = createRouter({

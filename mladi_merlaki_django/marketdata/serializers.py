@@ -4,6 +4,8 @@ from marketdata.models import Stock, Cryptocurrency
 
 
 class StockSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Stock
         fields = (
@@ -17,6 +19,7 @@ class StockSerializer(serializers.ModelSerializer):
             'country',
             'exchange',
             'is_etf',
+            'id',
         )
 
 class CryptoSerializer(serializers.ModelSerializer):
