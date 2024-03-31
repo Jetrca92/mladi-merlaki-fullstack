@@ -55,7 +55,7 @@
                 <tbody>
                     <tr v-for="(stock, index) in pagedStocks" :key="stock.id">
                         <th scope="row">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</th>
-                        <td><a :href="`/stocks/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</a></td>
+                        <td><router-link :to="`/stocks/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</router-link></td>
                         <td>${{ stock.price}}</td>
                         <td>{{ stock.sector }}</td>
                         <td>${{ stock.volume}}</td>

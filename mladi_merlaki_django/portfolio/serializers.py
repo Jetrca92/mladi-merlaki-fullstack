@@ -6,20 +6,21 @@ from portfolio.models import Portfolio, StockPortfolio, CryptoPortfolio
 from marketdata.serializers import StockSerializer, CryptoSerializer
 
 
-
 class StockPortfolioSerializer(serializers.ModelSerializer):
     stock = StockSerializer()
 
     class Meta:
         model = StockPortfolio
-        fields = ('owner', 'stock', 'shares')
+        fields = ('stock', 'shares')
+
 
 class CryptoPortfolioSerializer(serializers.ModelSerializer):
     coin = CryptoSerializer()
 
     class Meta:
         model = CryptoPortfolio
-        fields = ('owner', 'coin', 'shares')
+        fields = ('coin', 'shares')
+
 
 class PortfolioSerializer(serializers.ModelSerializer):
     stocks = StockPortfolioSerializer(many=True)
@@ -33,3 +34,5 @@ class PortfolioSerializer(serializers.ModelSerializer):
             "stocks",
             "crypto",
         )
+
+
