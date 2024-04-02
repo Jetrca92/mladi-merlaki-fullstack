@@ -12,7 +12,7 @@
 
             </div>
 
-            <form @submit.prevent="submitForm" class="mb-3">
+            <form @submit.prevent="submitForm" class="mb-3" v-if="$store.state.isAuthenticated"> 
                 <div class="field has-addons">
                     <div class="control">
                         <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">

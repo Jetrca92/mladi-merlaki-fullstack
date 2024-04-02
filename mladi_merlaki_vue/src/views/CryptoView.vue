@@ -9,7 +9,7 @@
                         <div class="control">
                             <div class="">
                                 <div class="is-half">
-                                    <input class="input" style="width: 50%;" type="text" placeholder="Company name" id="search" name="name" v-model="filterInput" />
+                                    <input class="input" style="width: 50%;" type="text" placeholder="Cryptocurrency name" id="search" name="name" v-model="filterInput" />
                                 </div>
                                 
                             </div>
@@ -35,9 +35,7 @@
                     </div>
                 </form>
             </div>
-
         </div>
-        
 
         <div>
             <table class="table is-fullwidth is-hoverable" id="crypto-table" v-if="crypto.length > 0">

@@ -1,18 +1,14 @@
 <template>
     <section class="section">
         <div class="box">
-            <h3 class="title is-3">{{ coin.name }} ({{ coin.symbol }})</h3>
+            <h3 class="title is-3"><img :src="coin.logo" style="width: 25px; height: auto; margin-right: 5px;" class="mr-3">{{ coin.name }} ({{ coin.symbol }})</h3>
             <h1 class="title is-1 mb-3">${{ coin.price}}</h1>
             <div class="content">
-                <p><strong>Country: </strong> {{ coin.country }}</p>
-                <p><strong>Sector:</strong> {{ coin.sector }}</p>
                 <p><strong>Market Cap:</strong> ${{ coin.market_cap}}</p>
                 <p><strong>24 Hour Trading Volume:</strong> ${{ coin.volume}}</p>
-                <p><strong>Dividend:</strong> ${{ coin.dividend}}</p>
-
             </div>
 
-            <form @submit.prevent="submitForm" class="mb-3">
+            <form @submit.prevent="submitForm" class="mb-3" v-if="$store.state.isAuthenticated">
                 <div class="field has-addons">
                     <div class="control">
                         <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">
@@ -29,7 +25,7 @@
                     <button @click="hideSuccessMessage" class="delete" aria-label="delete"></button>
                 </div>
                 <div class="message-body">
-                    You've successfully purchased {{ shares }} shares of {{ stock.symbol }} for ${{ t }}.
+                    You've successfully purchased {{ shares }} shares of {{ coin.symbol }} for ${{ t }}.
                 </div>
             </article>
         </div>
@@ -69,7 +65,7 @@ const submitForm = async () => {
         return
     }
     const formData = {
-        stock: stock.value,
+        coin: coin.value,
         shares: shares.value,
     }
     const csrftoken = getCookie("csrftoken")

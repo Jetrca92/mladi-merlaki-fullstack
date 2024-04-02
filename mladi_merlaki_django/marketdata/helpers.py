@@ -1,17 +1,15 @@
 import os
 import json
-import random
-import urllib.parse
 import requests
 
-from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db import transaction
 from django.utils.timezone import datetime
 
 from marketdata.models import Stock, Cryptocurrency
 from portfolio.models import StockPortfolio, CryptoPortfolio, Portfolio
 
 
+@transaction.atomic
 def update_stock_data():
     url = "https://financialmodelingprep.com/api/v3/stock-screener"
     params = {
@@ -43,6 +41,7 @@ def update_stock_data():
         )
 
 
+@transaction.atomic
 def update_crypto_data():
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {

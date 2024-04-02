@@ -17,6 +17,10 @@ class Portfolio(models.Model):
     def add_stock(self, stock):
         self.stocks.add(stock)
         self.save()
+
+    def add_crypto(self, coin):
+        self.crypto.add(coin)
+        self.save()
     
     def __str__(self):
         return f"{self.owner}"
@@ -38,7 +42,11 @@ class StockPortfolio(models.Model):
 class CryptoPortfolio(models.Model):
     owner = models.ForeignKey(Portfolio, on_delete=models.CASCADE, blank=True, related_name="crypto_portfolio_owner")
     coin = models.ForeignKey(Cryptocurrency, on_delete=models.CASCADE, blank=True, related_name="coin")
-    shares = models.FloatField()
+    shares = models.FloatField(default=0)
+
+    def add_shares(self, shares):
+        self.shares += shares
+        self.save()
 
     def __str__(self):
         return f"{self.coin} ({self.owner})"
