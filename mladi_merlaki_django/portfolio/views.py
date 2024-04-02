@@ -31,7 +31,7 @@ class BuyStockView(APIView):
         if serializer.is_valid():
 
             # Add stock to portfolio
-            buy_stock(serializer.validated_data["stock"], request.user, serializer.validated_data["shares"])
+            buy_stock(serializer.validated_data["stock"]["symbol"], request.user, serializer.validated_data["shares"])
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

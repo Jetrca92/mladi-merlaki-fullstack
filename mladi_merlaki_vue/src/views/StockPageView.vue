@@ -12,17 +12,26 @@
 
             </div>
 
-            <form @submit.prevent="submitForm">
+            <form @submit.prevent="submitForm" class="mb-3">
                 <div class="field has-addons">
                     <div class="control">
                         <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">
                     </div>
                     <div class="control">
-                        <button class="button is-primary">Buy</button>
+                        <button class="button is-info">Buy</button>
                     </div>
                 </div>
             </form>
 
+            <article v-if="successMessageVisible" class="message is-primary my-5">
+                <div class="message-header">
+                    <p>Success!</p>
+                    <button @click="hideSuccessMessage" class="delete" aria-label="delete"></button>
+                </div>
+                <div class="message-body">
+                    You've successfully purchased {{ shares }} shares of {{ stock.symbol }} for ${{ t }}.
+                </div>
+            </article>
         </div>
 
     </section>
@@ -35,6 +44,11 @@ import axios from 'axios'
 
 const stock = ref({})
 const shares = ref()
+const successMessageVisible = ref(false)
+const t = ref()
+const total = () => {
+    t.value = stock.value.price * shares.value
+}
 const route = useRoute()
 
 const getStock = () => {
@@ -68,11 +82,16 @@ const submitForm = async () => {
     await axios
         .post("/api/v1/portfolio/buy_stock/", formData, config)
         .then(response => {
-            shares.value = '' 
+            successMessageVisible.value = true 
+            total()
         })
         .catch(error => {
         console.error(error)
         })
+}
+
+const hideSuccessMessage = () => {
+    successMessageVisible.value = false
 }
 
 const getCookie = (name) => {
