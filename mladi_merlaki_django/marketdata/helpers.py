@@ -57,7 +57,7 @@ def update_crypto_data():
 
     for coin in data:
         Cryptocurrency.objects.update_or_create(
-            symbol=coin["symbol"],
+            symbol=coin["symbol"].upper(),
             defaults={
                 "name": coin["name"],
                 "logo": coin["image"],
@@ -84,13 +84,11 @@ def save_last_update_date(date):
 
 
 def market_update(date):
-    
     last_update_date = load_last_update_date()
-
     if last_update_date and last_update_date.date() == datetime.today().date():
         return
     
     update_crypto_data()
     update_stock_data()
-
     save_last_update_date(datetime.today())
+    

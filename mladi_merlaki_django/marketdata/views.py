@@ -32,4 +32,12 @@ class StockDataView(APIView):
         stock = self.get_object(id)
         serializer = StockSerializer(stock)
         return Response(serializer.data)
+    
+
+class CryptomarketDataView(APIView):
+    def get(self, request, format=None):
+        market_update(datetime.today)
+        crypto = Cryptocurrency.objects.all()[0:100]
+        serializer = CryptoSerializer(crypto, many=True)
+        return Response(serializer.data)
         
