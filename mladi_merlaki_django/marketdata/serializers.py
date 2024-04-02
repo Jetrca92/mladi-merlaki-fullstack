@@ -23,6 +23,8 @@ class StockSerializer(serializers.ModelSerializer):
         )
 
 class CryptoSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Cryptocurrency
         fields = (
@@ -32,4 +34,5 @@ class CryptoSerializer(serializers.ModelSerializer):
             'market_cap',
             'price',
             'volume',
+            'id',
         )

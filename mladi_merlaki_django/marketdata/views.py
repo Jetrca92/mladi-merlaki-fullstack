@@ -28,6 +28,7 @@ class StockDataView(APIView):
             return Stock.objects.get(id=id)
         except Stock.DoesNotExist:
             raise Http404
+        
     def get(self, request, id, format=None):
         stock = self.get_object(id)
         serializer = StockSerializer(stock)
@@ -39,5 +40,19 @@ class CryptomarketDataView(APIView):
         market_update(datetime.today)
         crypto = Cryptocurrency.objects.all()[0:100]
         serializer = CryptoSerializer(crypto, many=True)
+        return Response(serializer.data)
+    
+
+class CryptocurrencyDataView(APIView):
+
+    def get_object(self, id):
+        try:
+            return Cryptocurrency.objects.get(id=id)
+        except Cryptocurrency.DoesNotExist:
+            raise Http404
+        
+    def get(self, request, id, format=None):
+        coin = self.get_object(id)
+        serializer = CryptoSerializer(coin)
         return Response(serializer.data)
         

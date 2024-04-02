@@ -6,6 +6,7 @@ import UserPortfolio from '../views/UserPortfolio.vue'
 import StocksView from '@/views/StocksView.vue'
 import StockPageView from '@/views/StockPageView.vue'
 import CryptoView from '@/views/CryptoView.vue'
+import CoinPageView from '@/views/CoinPageView.vue'
 
 const routes = [
   {
@@ -34,14 +35,20 @@ const routes = [
     component: StocksView
   },
   {
+    path: '/stocks/:id',
+    name: 'stockpage',
+    component: StockPageView
+  },
+  {
     path: '/cryptocurrency',
     name: 'cryptocurrency',
     component: CryptoView
   },
+  
   {
-    path: '/stocks/:id',
-    name: 'stockpage',
-    component: StockPageView
+    path: '/cryptocurrency/:id',
+    name: 'cryptopage',
+    component: CoinPageView
   }
 ]
 

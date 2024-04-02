@@ -51,17 +51,17 @@ const total = () => {
 }
 const route = useRoute()
 
-const getStock = () => {
-    const stockId = route.params.id
-    axios.get(`api/v1/marketdata/stocks/${stockId}/`)
+const getCoin = () => {
+    const coinId = route.params.id
+    axios.get(`api/v1/marketdata/crypto/${coinId}/`)
         .then(response => {
-        stock.value = response.data
+        coin.value = response.data
         })
         .catch(error => {
         console.error(error)
         })
 }
-onMounted(getStock)
+onMounted(getCoin)
 
 const submitForm = async () => {
     if (!shares.value || shares.value <= 0) {
@@ -80,7 +80,7 @@ const submitForm = async () => {
         }
     }
     await axios
-        .post("/api/v1/portfolio/buy_stock/", formData, config)
+        .post("/api/v1/portfolio/buy_crypto/", formData, config)
         .then(response => {
             successMessageVisible.value = true 
             total()
