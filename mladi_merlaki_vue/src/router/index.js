@@ -7,6 +7,7 @@ import StocksView from '@/views/StocksView.vue'
 import StockPageView from '@/views/StockPageView.vue'
 import CryptoView from '@/views/CryptoView.vue'
 import CoinPageView from '@/views/CoinPageView.vue'
+import LearnView from '@/views/LearnView.vue'
 
 const routes = [
   {
@@ -44,12 +45,16 @@ const routes = [
     name: 'cryptocurrency',
     component: CryptoView
   },
-  
   {
     path: '/cryptocurrency/:id',
     name: 'cryptopage',
     component: CoinPageView
-  }
+  },
+  {
+    path: '/learn',
+    name: 'learn',
+    component: LearnView
+  },
 ]
 
 const router = createRouter({
