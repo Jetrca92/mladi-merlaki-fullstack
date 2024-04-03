@@ -8,6 +8,7 @@ import StockPageView from '@/views/StockPageView.vue'
 import CryptoView from '@/views/CryptoView.vue'
 import CoinPageView from '@/views/CoinPageView.vue'
 import LearnView from '@/views/LearnView.vue'
+import HistoryView from '@/views/HistoryView.vue'
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/learn',
     name: 'learn',
     component: LearnView
+  },
+  {
+    path: '/history',
+    name: 'history',
+    component: HistoryView
   },
 ]
 

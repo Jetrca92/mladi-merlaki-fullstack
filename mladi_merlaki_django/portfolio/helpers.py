@@ -57,3 +57,16 @@ def buy_crypto(crypto_symbol, user, shares):
     )
     c.add_shares(shares)
     user_portfolio.add_crypto(c)
+
+    # Add transaction to Transactions model
+    transaction = Transaction.objects.create(
+        owner=user, 
+        symbol=coin.symbol, 
+        asset_class="crypto", 
+        shares=shares, 
+        price=coin.price, 
+        type="buy",
+    )
+
+    # Deduct price from users cash
+    user_portfolio.update_cash(-total)

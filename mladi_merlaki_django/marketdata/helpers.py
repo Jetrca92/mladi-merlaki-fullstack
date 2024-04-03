@@ -22,7 +22,7 @@ def update_stock_data():
 
     response = requests.get(url, params=params)
     data = response.json()
-
+    print(data)
     # Update or create a new instance of Stock with the provided data
     for stock in data:
         Stock.objects.update_or_create(
@@ -53,7 +53,6 @@ def update_crypto_data():
     }
     response = requests.get(url, params=params)
     data = response.json()
-
     for coin in data:
         Cryptocurrency.objects.update_or_create(
             symbol=coin["symbol"].upper(),
@@ -87,7 +86,7 @@ def market_update(date):
     if last_update_date and last_update_date.date() == datetime.today().date():
         return
     
-    update_crypto_data()
-    update_stock_data()
+    #update_crypto_data()
+    #update_stock_data()
     save_last_update_date(datetime.today())
     

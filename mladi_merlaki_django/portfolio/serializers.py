@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from portfolio.models import Portfolio, StockPortfolio, CryptoPortfolio
+from portfolio.models import Portfolio, StockPortfolio, CryptoPortfolio, Transaction
 from marketdata.serializers import StockSerializer, CryptoSerializer
 
 
@@ -34,5 +34,19 @@ class PortfolioSerializer(serializers.ModelSerializer):
             "stocks",
             "crypto",
         )
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Transaction
+            fields = (
+                "owner",
+                "symbol",
+                "asset_class",
+                "shares",
+                "price",
+                "type",
+                "date",
+            )
 
 
