@@ -56,10 +56,10 @@
                     <tr v-for="(stock, index) in pagedStocks" :key="stock.id">
                         <th scope="row">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</th>
                         <td><router-link :to="`/stocks/${stock.id}`" class="navbar-item">{{ stock.name }} ({{ stock.symbol }})</router-link></td>
-                        <td>${{ stock.price}}</td>
+                        <td>${{ Number(stock.price).toLocaleString() }}</td>
                         <td>{{ stock.sector }}</td>
-                        <td>${{ stock.volume}}</td>
-                        <td>${{ stock.market_cap}}</td>
+                        <td>${{ Number(stock.volume).toLocaleString() }}</td>
+                        <td>${{ Number(stock.market_cap).toLocaleString() }}</td>
                         <td>{{ stock.country }}</td>
                     </tr>
                 </tbody>

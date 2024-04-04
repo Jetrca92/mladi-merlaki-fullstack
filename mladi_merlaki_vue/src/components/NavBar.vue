@@ -43,8 +43,9 @@ const logout = () => {
         <router-link to="/learn" class="navbar-item">Learn</router-link>
         <router-link to="/stocks" class="navbar-item">Stocks</router-link>
         <router-link to="/cryptocurrency" class="navbar-item">Cryptocurrency</router-link>
-        <router-link to="/portfolio" class="navbar-item">Portfolio</router-link>
-        <router-link to="/history" class="navbar-item">History</router-link>
+        <router-link to="/portfolio" class="navbar-item" v-if="$store.state.isAuthenticated">Portfolio</router-link>
+        <router-link to="/history" class="navbar-item" v-if="$store.state.isAuthenticated">History</router-link>
+        <router-link to="/rankings" class="navbar-item">Rankings</router-link>
         <a class="navbar-item">
           Documentation
         </a>

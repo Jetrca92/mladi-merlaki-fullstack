@@ -1,5 +1,5 @@
 <template>
-    <div class="section">
+    <section class="section">
         <table class="table is-striped is-fullwidth">
             <thead>
                 <tr>
@@ -22,7 +22,7 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </section>
 
 </template>
 

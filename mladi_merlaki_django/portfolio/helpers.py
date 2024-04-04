@@ -70,3 +70,20 @@ def buy_crypto(crypto_symbol, user, shares):
 
     # Deduct price from users cash
     user_portfolio.update_cash(-total)
+
+
+def calculate_portfolio_rankings(portfolios):
+    data = []
+    for portfolio in portfolios:
+        stocks_total = portfolio.calculate_stock_total()
+        crypto_total = portfolio.calculate_crypto_total()
+        cash = portfolio.cash
+        total = stocks_total + crypto_total + cash
+        data.append({
+            "username": portfolio.owner.username,
+            "stocks_total": stocks_total,
+            "crypto_total": crypto_total,
+            "cash": cash,
+            "total": total,
+        })
+    return sorted(data, key=lambda x: x['total'], reverse=True)

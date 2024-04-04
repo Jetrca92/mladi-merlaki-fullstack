@@ -21,6 +21,19 @@ class Portfolio(models.Model):
     def add_crypto(self, coin):
         self.crypto.add(coin)
         self.save()
+
+    def calculate_stock_total(self):
+        total = 0
+        for stock in self.stocks.all():
+            total += stock.total()
+        return total
+    
+    def calculate_crypto_total(self):
+        total = 0
+        for coin in self.crypto.all():
+            total += coin.total()
+        return total
+
     
     def __str__(self):
         return f"{self.owner}"
@@ -35,6 +48,9 @@ class StockPortfolio(models.Model):
         self.shares += shares
         self.save()
 
+    def total(self):
+        return self.stock.price * self.shares
+
     def __str__(self):
         return f"{self.stock} ({self.owner.owner.username})"
 
@@ -47,6 +63,9 @@ class CryptoPortfolio(models.Model):
     def add_shares(self, shares):
         self.shares += shares
         self.save()
+
+    def total(self):
+        return self.coin.price * self.shares
 
     def __str__(self):
         return f"{self.coin} ({self.owner})"

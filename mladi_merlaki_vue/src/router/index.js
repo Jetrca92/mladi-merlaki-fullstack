@@ -9,6 +9,7 @@ import CryptoView from '@/views/CryptoView.vue'
 import CoinPageView from '@/views/CoinPageView.vue'
 import LearnView from '@/views/LearnView.vue'
 import HistoryView from '@/views/HistoryView.vue'
+import RankingsView from '@/views/RankingsView.vue'
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/history',
     name: 'history',
     component: HistoryView
+  },
+  {
+    path: '/rankings',
+    name: 'rankings',
+    component: RankingsView
   },
 ]
 

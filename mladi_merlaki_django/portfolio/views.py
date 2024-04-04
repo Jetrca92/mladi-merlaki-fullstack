@@ -4,9 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from portfolio.helpers import buy_stock, buy_crypto
+from portfolio.helpers import buy_stock, buy_crypto, calculate_portfolio_rankings
 from portfolio.models import Portfolio, Transaction
-from portfolio.serializers import PortfolioSerializer, StockPortfolioSerializer, CryptoPortfolioSerializer, TransactionSerializer
+from portfolio.serializers import (
+    PortfolioSerializer, 
+    StockPortfolioSerializer, 
+    CryptoPortfolioSerializer, 
+    TransactionSerializer, 
+    RankingsSerializer,
+)
 
 
 class PortfolioView(APIView):
@@ -57,3 +63,15 @@ class TransactionsView(APIView):
         transactions = Transaction.objects.filter(owner=request.user)
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
+
+
+class RankingsView(APIView):
+
+    def get(self, request, format=None):
+        portfolios = Portfolio.objects.all()[0:100]
+        rankings = calculate_portfolio_rankings(portfolios)
+        serializer = RankingsSerializer(rankings, many=True)
+        return Response(serializer.data)
+
+
+   

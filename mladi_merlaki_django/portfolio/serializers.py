@@ -50,3 +50,11 @@ class TransactionSerializer(serializers.ModelSerializer):
             )
 
 
+
+class RankingsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    stocks_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    crypto_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    cash = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total = serializers.DecimalField(max_digits=10, decimal_places=2)
+

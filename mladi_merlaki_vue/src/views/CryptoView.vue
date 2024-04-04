@@ -52,9 +52,9 @@
                     <tr v-for="(coin, index) in pagedCrypto" :key="coin.id">
                         <th scope="row">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</th>
                         <td><router-link :to="`/cryptocurrency/${coin.id}`" class="navbar-item"><img :src="coin.logo" style="width: 20px; height: auto; margin-right: 5px;" class="mr-3" alt="{{ coin.symbol }}">{{ coin.name }} ({{ coin.symbol }})</router-link></td>
-                        <td>${{ coin.price}}</td>
-                        <td>${{ coin.volume}}</td>
-                        <td>${{ coin.market_cap}}</td>
+                        <td>${{ Number(coin.price).toLocaleString() }}</td>
+                        <td>${{ Number(coin.volume).toLocaleString() }}</td>
+                        <td>${{ Number(coin.market_cap).toLocaleString() }}</td>
                     </tr>
                 </tbody>
             </table>
