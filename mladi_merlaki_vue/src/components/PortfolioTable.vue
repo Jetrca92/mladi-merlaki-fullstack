@@ -1,19 +1,9 @@
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import { useStore } from 'vuex'
 
-const portfolio = ref({})
-
-const getPortfolio = () => {
-    axios.get(`api/v1/portfolio/portfolio/`)
-        .then(response => {
-            portfolio.value = response.data 
-        })
-        .catch(error => {
-        console.error(error)
-        })
-}
-getPortfolio()
+const store = useStore()
+const portfolio = ref(store.state.portfolio)
 
 const calculateTotal = () => {
     if (!portfolio.value.stocks || !portfolio.value.crypto) {
@@ -47,9 +37,9 @@ const calculateTotal = () => {
     <tbody>
         <tr v-for="asset in portfolio.stocks" :key="asset.id">
             <td>{{ asset.stock.name }} ({{ asset.stock.symbol }})</td>
-            <td class="has-text-right">{{ asset.shares }}</td>
-            <td class="has-text-right">{{ asset.stock.price }} $</td>
-            <td class="has-text-right">{{ asset.shares * asset.stock.price }} $</td>
+            <td class="has-text-right">{{ Number(asset.shares).toLocaleString() }}</td>
+            <td class="has-text-right">{{ Number(asset.stock.price).toLocaleString() }} $</td>
+            <td class="has-text-right">{{ Number(asset.shares * asset.stock.price).toLocaleString() }} $</td>
         </tr>
     </tbody>
     <thead>
@@ -66,9 +56,9 @@ const calculateTotal = () => {
     <tbody>
         <tr v-for="asset in portfolio.crypto" :key="asset.id">
             <td>{{ asset.coin.name }} ({{ asset.coin.symbol }})</td>
-            <td class="has-text-right">{{ asset.shares }}</td>
-            <td class="has-text-right">{{ asset.coin.price }} $</td>
-            <td class="has-text-right">{{ asset.shares * asset.coin.price }} $</td>
+            <td class="has-text-right">{{ Number(asset.shares).toLocaleString() }}</td>
+            <td class="has-text-right">{{ Number(asset.coin.price).toLocaleString() }} $</td>
+            <td class="has-text-right">{{ Number(asset.shares * asset.coin.price).toLocaleString() }} $</td>
         </tr>
     </tbody>
     <tfoot>
@@ -77,11 +67,11 @@ const calculateTotal = () => {
         </tr>
         <tr>
             <td colspan="3" class="has-text-right is-uppercase has-text-weight-bold">Cash</td>
-            <td class="has-text-right">{{ portfolio.cash }} $</td>
+            <td class="has-text-right">{{ Number(portfolio.cash).toLocaleString() }} $</td>
         </tr>
         <tr>
             <td colspan="3" class="has-text-right is-uppercase has-text-weight-bold">TOTAL</td>
-            <td class="has-text-right">{{ calculateTotal() }} $</td>
+            <td class="has-text-right">{{ calculateTotal().toLocaleString() }} $</td>
         </tr>
     </tfoot>
 </table>

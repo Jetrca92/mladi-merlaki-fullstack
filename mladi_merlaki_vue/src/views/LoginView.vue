@@ -40,28 +40,39 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
+const store = useStore()
 const username = ref('')
 const password = ref('')
 const errors = ref([])
 const token = ref('')
 const router = useRouter()
 
-const submitForm = async () => {
+const setToken = (token) => {
+  store.commit('setToken', token)
+}
+
+const setAuthorizationHeader = (token) => {
+  axios.defaults.headers.common['Authorization'] = `Token ${token}`
+}
+
+const submitForm = () => {
     axios.defaults.headers.common["Authorization"] = ""
 
     const formData = {
         username: username.value,
         password: password.value
     }
-    await axios.post("/api/v1/token/login/", formData)
+    axios.post("/api/v1/token/login/", formData)
         .then(response => {
             token.value = response.data.auth_token
-            localStorage.setItem("token", token.value)
-            // Mutate state using Vue 3's Composition API
-            router.to('/')
+            setToken(token.value)
+            setAuthorizationHeader(token.value)
+            localStorage.setItem('token', token)
+            store.dispatch('fetchPortfolio')
+            router.push('/')
         })
-        
         .catch(error => {
             if (error.response) {
                 for (const property in error.response.data) {
@@ -69,8 +80,9 @@ const submitForm = async () => {
                 }
             } else {
                 errors.value.push('Something went wrong. Please try again.')
-                console.log(JSON.stringify(error))
+                console.error(JSON.stringify(error))
             }
-        }) 
+        });
 }
+
 </script>
