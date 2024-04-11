@@ -40,7 +40,7 @@
                 </div>
 
                 <!-- sell option if user has stock in portfolio -->
-                <div v-if="true" class="column">
+                <div v-if="stockInPortfolio(stock)" class="column">
                     <h3 class="title is-3">Your shares</h3>
                     <h1 class="title is-1 mb-3">${{ Number(stock.price).toLocaleString() }}</h1>
                 </div>
@@ -57,16 +57,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import axios from 'axios'
 
 const stock = ref({})
 const shares = ref()
 const successMessageVisible = ref(false)
 const t = ref()
+const store = useStore()
+const route = useRoute()
+
 const total = () => {
     t.value = stock.value.price * shares.value
 }
-const route = useRoute()
 
 const getStock = () => {
     const stockId = route.params.id
@@ -126,5 +129,11 @@ const getCookie = (name) => {
     return cookieValue;
 }
 
-
+const stockInPortfolio = (stock) => {
+    const portfolio = store.state.portfolio
+    if (portfolio && portfolio.stocks) {
+        return portfolio.stocks.some(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol)
+    }
+    return false;
+}
 </script>
