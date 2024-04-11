@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.timezone import datetime
 
@@ -7,9 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from marketdata.helpers import market_update
+from marketdata.helpers import market_update, calculate_monthly_volume, calculate_yearly_transactions
 from marketdata.models import Cryptocurrency, Stock
-from marketdata.serializers import StockSerializer, CryptoSerializer
+from marketdata.serializers import StockSerializer, CryptoSerializer, AppInfoSerializer
 
 
 class StockmarketDataView(APIView):
@@ -55,4 +56,18 @@ class CryptocurrencyDataView(APIView):
         coin = self.get_object(id)
         serializer = CryptoSerializer(coin)
         return Response(serializer.data)
+    
+
+class AppdataView(APIView):
+    
+    def get(self, request, format=None):
+        app_data = {
+            "monthly_volume": calculate_monthly_volume(),
+            "transactions": calculate_yearly_transactions(),
+            "users": User.objects.count(),
+        }
+        serializer = AppInfoSerializer(data=app_data)
+        if serializer.is_valid():
+            return Response(serializer.data)
+        
         

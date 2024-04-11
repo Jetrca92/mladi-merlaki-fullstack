@@ -36,58 +36,41 @@
     </section>
 </template>
 
-<script>
+<script setup>
 import axios from 'axios'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-export default {
-    name: 'LogIn',
-    data() {
-        return {
-            username: '',
-            password: '',
-            errors: []
-        }
-    },
-    mounted() {
-        document.title = 'Log In | Mladi Merlaki'
-    },
-    methods: {
-        async submitForm() {
-            axios.defaults.headers.common["Authorization"] = ""
-        
-            
-            const formData = {
-                username: this.username,
-                password: this.password
-            }
-            await axios
-                .post("/api/v1/token/login/", formData)
-                .then(response => {
-                    const token = response.data.auth_token
+const username = ref('')
+const password = ref('')
+const errors = ref([])
+const token = ref('')
+const router = useRouter()
 
-                    this.$store.commit('setToken', token)
+const submitForm = async () => {
+    axios.defaults.headers.common["Authorization"] = ""
 
-                    axios.defaults.headers.common["Authorization"] = "Token " + token
-
-                    localStorage.setItem("token", token)
-
-                    const toPath = this.$route.query.to || '/'
-
-                    this.$router.push(toPath)  
-                })
-                .catch(error => {
-                    if (error.response) {
-                        for (const property in error.response.data) {
-                            this.errors.push(`${property}: ${error.response.data[propertyy]}`)
-                        }
-                    } else {
-                        this.errors.push('Something went wrong. Please try again.')
-                        console.log(JSON.stringify(error))
-                    }
-                })
-        }
+    const formData = {
+        username: username.value,
+        password: password.value
     }
+    await axios.post("/api/v1/token/login/", formData)
+        .then(response => {
+            token.value = response.data.auth_token
+            localStorage.setItem("token", token.value)
+            // Mutate state using Vue 3's Composition API
+            router.to('/')
+        })
+        
+        .catch(error => {
+            if (error.response) {
+                for (const property in error.response.data) {
+                    errors.value.push(`${property}: ${error.response.data[property]}`)
+                }
+            } else {
+                errors.value.push('Something went wrong. Please try again.')
+                console.log(JSON.stringify(error))
+            }
+        }) 
 }
-
-
 </script>

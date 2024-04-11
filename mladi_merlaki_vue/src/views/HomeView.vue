@@ -107,37 +107,40 @@
             </div>
         </section>
 
-        
-
-
-        
-
-        
-
-        
-            
-
         <section class="section container px-6 my-2 pt-5" id="active-users-grid">
             <div class="columns is-multiline is-centered">
                 <div class="column is-4 has-text-centered">
-                    <h3 class="title is-4">158 million dollars</h3>
+                    <h3 class="title is-4">${{ parseInt(app_info.monthly_volume).toLocaleString() }}</h3>
                     <p class="subtitle is-5">Monthly volume of trading on Mladi Merlaki app</p>
                 </div>
                 <div class="column is-4 has-text-centered">
-                    <h3 class="title is-4">51</h3>
+                    <h3 class="title is-4">{{ app_info.users }}</h3>
                     <p class="subtitle is-5">Registered users</p>
                 </div>
                 <div class="column is-4 has-text-centered">
-                    <h3 class="title is-4">671</h3>
+                    <h3 class="title is-4">{{ parseInt(app_info.transactions).toLocaleString() }}</h3>
                     <p class="subtitle is-5">Trades executed over last 30 days</p>
                 </div>
             </div>
         </section>
 
-
     </div>
 </template>
 
 <script setup>
-import NavBar from '../components/NavBar.vue';
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const app_info = ref({})
+
+const getAppInfo = () => {
+    axios.get(`api/v1/marketdata/app_data/`)
+        .then(response => {
+            app_info.value = response.data 
+        })
+        .catch(error => {
+        console.error(error)
+        })
+}
+onMounted(getAppInfo)
 </script>

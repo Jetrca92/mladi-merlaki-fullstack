@@ -3,10 +3,12 @@ import json
 import requests
 
 from django.db import transaction
+from django.db.models import Sum
+from django.utils import timezone
 from django.utils.timezone import datetime
 
 from marketdata.models import Stock, Cryptocurrency
-from portfolio.models import StockPortfolio, CryptoPortfolio, Portfolio
+from portfolio.models import Transaction
 
 
 @transaction.atomic
@@ -89,4 +91,16 @@ def market_update(date):
     #update_crypto_data()
     #update_stock_data()
     save_last_update_date(datetime.today())
+
+
+def calculate_monthly_volume():
+    current_month = timezone.now().month
+    monthly_transactions = Transaction.objects.filter(date__month=current_month)
+    return sum(transaction.total() for transaction in monthly_transactions)
+
+def calculate_yearly_transactions():
+    current_year = timezone.now().year
+    current_year_transactions = Transaction.objects.filter(date__year=current_year)
+    return current_year_transactions.count()
+
     
