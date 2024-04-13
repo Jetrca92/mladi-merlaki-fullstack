@@ -22,9 +22,24 @@ class CryptoPortfolioSerializer(serializers.ModelSerializer):
         fields = ('coin', 'shares')
 
 
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = (
+            "owner",
+            "symbol",
+            "asset_class",
+            "shares",
+            "price",
+            "type",
+            "date",
+        )
+
+
 class PortfolioSerializer(serializers.ModelSerializer):
     stocks = StockPortfolioSerializer(many=True)
     crypto = CryptoPortfolioSerializer(many=True)
+    transactions = TransactionSerializer(many=True)
 
     class Meta:
         model = Portfolio
@@ -33,21 +48,8 @@ class PortfolioSerializer(serializers.ModelSerializer):
             "cash",
             "stocks",
             "crypto",
+            "transactions",
         )
-
-
-class TransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = Transaction
-            fields = (
-                "owner",
-                "symbol",
-                "asset_class",
-                "shares",
-                "price",
-                "type",
-                "date",
-            )
 
 
 class RankingsSerializer(serializers.Serializer):

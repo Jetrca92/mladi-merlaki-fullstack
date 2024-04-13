@@ -68,8 +68,9 @@ def buy_crypto(crypto_symbol, user, shares):
         type="buy",
     )
 
-    # Deduct price from users cash
+    # Deduct price from users cash and add transaction to portfolio
     user_portfolio.update_cash(-total)
+    user_portfolio.add_transaction(transaction)
 
 
 def calculate_portfolio_rankings(portfolios):

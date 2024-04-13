@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
+store.dispatch('fetchPortfolio')
 const portfolio = ref(store.state.portfolio)
 
 const calculateTotal = () => {

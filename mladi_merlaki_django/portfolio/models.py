@@ -9,6 +9,7 @@ class Portfolio(models.Model):
     cash = models.FloatField(default=100000)
     stocks = models.ManyToManyField('StockPortfolio', blank=True)
     crypto = models.ManyToManyField('CryptoPortfolio', blank=True)
+    transactions = models.ManyToManyField('Transaction', blank=True, related_name="portfolio_transactions")
 
     def update_cash(self, amount):
         self.cash += amount
@@ -20,6 +21,10 @@ class Portfolio(models.Model):
 
     def add_crypto(self, coin):
         self.crypto.add(coin)
+        self.save()
+
+    def add_transaction(self, transaction):
+        self.transactions.add(transaction)
         self.save()
 
     def calculate_stock_total(self):
@@ -79,6 +84,9 @@ class Transaction(models.Model):
     price = models.FloatField()
     type = models.CharField(max_length=10) # buy or sell
     date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
     
     def __str__(self):
         return f"{self.owner} {self.type} {self.shares} shares of {self.asset_class} at {self.price} on {self.date}"

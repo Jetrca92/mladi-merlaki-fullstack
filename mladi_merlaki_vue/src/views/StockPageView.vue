@@ -16,7 +16,7 @@
 
                     </div>
 
-                    <form @submit.prevent="submitForm" class="mb-3" v-if="$store.state.isAuthenticated"> 
+                    <form @submit.prevent="submitBuyForm" class="mb-3" v-if="store.state.isAuthenticated"> 
                         <div class="field has-addons">
                             <div class="control">
                                 <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">
@@ -27,6 +27,9 @@
                         </div>
                     </form>
 
+                    <p v-if="shares && shares > 0 && stock.price && (shares * stock.price) <= store.state.portfolio.cash" class="is-size-6 is-italic">Total: ${{ (shares * stock.price).toLocaleString() }}</p>
+                    <p v-if="shares && shares > 0 && stock.price && (shares * stock.price) >= store.state.portfolio.cash" class="is-danger is-size-6 is-italic">Not enough cash in portfolio.</p>
+                    
                     <article v-if="successMessageVisible" class="message is-primary my-5">
                         <div class="message-header">
                             <p>Success!</p>
@@ -37,18 +40,38 @@
                         </div>
                     </article>
 
+                    <article v-if="errorMessageVisible" class="message is-danger my-5">
+                        <div class="message-header">
+                            <p>Failed to submit!</p>
+                            <button @click="hideErrorMessage" class="delete" aria-label="delete"></button>
+                        </div>
+                        <div class="message-body">
+                            {{ errorMessageContent }}
+                        </div>
+                    </article>
+
                 </div>
 
                 <!-- sell option if user has stock in portfolio -->
                 <div v-if="stockInPortfolio(stock)" class="column">
                     <h3 class="title is-3">Your shares</h3>
-                    <h1 class="title is-1 mb-3">${{ Number(stock.price).toLocaleString() }}</h1>
+                    <h1 class="title is-1 mb-3">${{ Number(valueOfShares(stock)).toLocaleString() }}</h1>
+                    <p><strong>Number of shares: </strong> {{ sharesInPortfolio(stock) }}</p>
+                    <p class="mb-3"><strong>Avg price: </strong> {{ averagePrice(stock) }}</p>
+
+                    <form @submit.prevent="submitSellForm" class="mb-3" v-if="store.state.isAuthenticated"> 
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input autocomplete="off" class="input" id="sell_shares" name="sell_shares" placeholder="Shares" type="number" min="1" step="1" v-model="sell_shares">
+                            </div>
+                            <div class="control">
+                                <button class="button is-danger">Sell</button>
+                            </div>
+                        </div>
+                    </form>
+
                 </div>
-            
-
-            
-
-            
+      
             </div>
         </div>
     </section>
@@ -62,7 +85,10 @@ import axios from 'axios'
 
 const stock = ref({})
 const shares = ref()
+const sell_shares = ref()
 const successMessageVisible = ref(false)
+const errorMessageVisible = ref(false)
+const errorMessageContent = ref('')
 const t = ref()
 const store = useStore()
 const route = useRoute()
@@ -83,9 +109,14 @@ const getStock = () => {
 }
 onMounted(getStock)
 
-const submitForm = async () => {
+const submitBuyForm = async () => {
     if (!shares.value || shares.value <= 0) {
         console.error("Invalid number of shares");
+        return
+    }
+    if (shares.value * stock.value.price > store.state.portfolio.cash) {
+        errorMessageContent.value = 'Not enough cash in portfolio!'
+        errorMessageVisible.value = true 
         return
     }
     const formData = {
@@ -104,6 +135,40 @@ const submitForm = async () => {
         .then(response => {
             successMessageVisible.value = true 
             total()
+            store.dispatch('fetchPortfolio')
+        })
+        .catch(error => {
+        console.error(error)
+        })
+}
+
+const submitSellForm = async () => {
+    if (!shares.value || shares.value <= 0) {
+        console.error("Invalid number of shares");
+        return
+    }
+    if (shares.value * stock.value.price > store.state.portfolio.cash) {
+        errorMessageContent.value = 'Not enough cash in portfolio!'
+        errorMessageVisible.value = true 
+        return
+    }
+    const formData = {
+        stock: stock.value,
+        shares: sell_shares.value,
+    }
+    const csrftoken = getCookie("csrftoken")
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        }
+    }
+    await axios
+        .post("/api/v1/portfolio/buy_stock/", formData, config)
+        .then(response => {
+            successMessageVisible.value = true 
+            total()
+            store.dispatch('fetchPortfolio')
         })
         .catch(error => {
         console.error(error)
@@ -112,6 +177,10 @@ const submitForm = async () => {
 
 const hideSuccessMessage = () => {
     successMessageVisible.value = false
+}
+
+const hideErrorMessage = () => {
+    errorMessageVisible.value = false
 }
 
 const getCookie = (name) => {
@@ -136,4 +205,30 @@ const stockInPortfolio = (stock) => {
     }
     return false;
 }
+
+const sharesInPortfolio = (stock) => {
+    const portfolio = store.state.portfolio;
+    const stockPortfolio = portfolio.stocks.find(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol);
+    return stockPortfolio ? stockPortfolio.shares : 0;
+}
+
+const valueOfShares = (stock) => {
+    const portfolio = store.state.portfolio;
+    const stockPortfolio = portfolio.stocks.find(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol);
+    return stockPortfolio ? stockPortfolio.shares * stockPortfolio.stock.price : 0;
+}
+
+const averagePrice = (stock) => {
+    const transactions = store.state.portfolio.transactions;
+    if (!transactions || transactions.length === 0) {
+        return null; // Return null if transactions is null or empty
+    }
+    const symbolTransactions = transactions.filter(transaction => transaction.symbol === stock.symbol);
+    if (symbolTransactions.length === 0) {
+        return null; // Return null if there are no transactions for the symbol
+    }
+    const totalAmount = symbolTransactions.reduce((acc, transaction) => acc + (transaction.shares * transaction.price), 0);
+    const totalShares = symbolTransactions.reduce((acc, transaction) => acc + transaction.shares, 0);
+    return totalAmount / totalShares;
+};
 </script>
