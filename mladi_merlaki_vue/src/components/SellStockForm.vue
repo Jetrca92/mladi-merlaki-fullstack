@@ -2,7 +2,7 @@
     <form @submit.prevent="submitSellForm" class="mb-3" v-if="store.state.isAuthenticated"> 
         <div class="field has-addons">
             <div class="control">
-                <input autocomplete="off" class="input" id="sell_shares" name="sell_shares" placeholder="Shares" type="number" min="1" step="1" v-model="sell_shares">
+                <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">
             </div>
             <div class="control">
                 <button class="button is-danger">Sell</button>
@@ -11,16 +11,16 @@
     </form>
 
     <p 
-        v-if="shares && shares > 0 && props.stock.price && (shares * props.stock.price) <= store.state.portfolio.cash" 
+        v-if="shares && shares > 0 && props.stock.price && shares <= sharesInPortfolio(props.stock)" 
         class="is-size-6 is-italic"
     >
         Total: ${{ (shares * props.stock.price).toLocaleString() }}
     </p>
     <p 
-        v-if="shares && shares > 0 && props.stock.price && (shares * props.stock.price) >= store.state.portfolio.cash" 
+        v-if="shares && shares > sharesInPortfolio(props.stock)" 
         class="is-danger is-size-6 is-italic"
     >
-        Not enough cash in portfolio.
+        Not enough shares in portfolio.
     </p>
 
     <article v-if="successMessageVisible" class="message is-primary my-5">
@@ -29,7 +29,7 @@
             <button @click="hideSuccessMessage" class="delete" aria-label="delete"></button>
         </div>
         <div class="message-body">
-            You've successfully purchased {{ shares }} shares of {{ stock.symbol }} for ${{ t }}.
+            You've successfully sold {{ shares }} shares of {{ props.stock.symbol }} for ${{ t }}.
         </div>
     </article>
 
@@ -71,16 +71,16 @@ const submitSellForm = async () => {
         console.error("Invalid number of shares");
         return
     }
-    if (shares.value > store.state.portfolio.cash) {
-        errorMessageContent.value = 'Not enough cash in portfolio!'
+    if (shares.value > sharesInPortfolio(props.stock)) {
+        errorMessageContent.value = 'Not enough shares in portfolio!'
         errorMessageVisible.value = true 
         return
     }
     const formData = {
-        stock: stock.value,
-        shares: sell_shares.value,
+        stock: props.stock,
+        shares: shares.value,
     }
-    const csrftoken = getCookie("csrftoken")
+    const csrftoken = props.getCookie("csrftoken")
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const submitSellForm = async () => {
         }
     }
     await axios
-        .post("/api/v1/portfolio/buy_stock/", formData, config)
+        .post("/api/v1/portfolio/sell_stock/", formData, config)
         .then(response => {
             successMessageVisible.value = true 
             total()
@@ -98,4 +98,15 @@ const submitSellForm = async () => {
         console.error(error)
         })
 }
+
+const sharesInPortfolio = (stock) => {
+    const portfolio = store.state.portfolio;
+    const stockPortfolio = portfolio.stocks.find(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol)
+    return stockPortfolio ? stockPortfolio.shares : 0
+}
+
+const total = () => {
+    t.value = props.stock.price * shares.value
+}
+
 </script>

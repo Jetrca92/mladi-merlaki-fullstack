@@ -15,7 +15,7 @@
                 <!-- sell option if user has stock in portfolio -->
                 <div v-if="stockInPortfolio(stock)" class="column">
                     <StockPortfolioInfo :stock="stock" />
-                    <SellStockForm :stock="stock" />
+                    <SellStockForm :stock="stock" :getCookie="getCookie" />
                 </div>
       
             </div>

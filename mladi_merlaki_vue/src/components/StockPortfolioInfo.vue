@@ -9,7 +9,7 @@
 import { useStore } from 'vuex'
 
 const store = useStore()
-const { props } = defineProps(['stock'])
+const props = defineProps(['stock'])
 const sharesInPortfolio = (stock) => {
     const portfolio = store.state.portfolio;
     const stockPortfolio = portfolio.stocks.find(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol)

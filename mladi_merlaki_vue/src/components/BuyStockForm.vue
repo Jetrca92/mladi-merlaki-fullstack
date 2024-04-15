@@ -106,6 +106,7 @@ const hideSuccessMessage = () => {
 const hideErrorMessage = () => {
     errorMessageVisible.value = false
 }
+
 const total = () => {
     t.value = props.stock.price * shares.value
 }

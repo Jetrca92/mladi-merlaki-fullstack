@@ -25,7 +25,7 @@ def buy_stock(stock_symbol, user, shares):
     user_portfolio.add_stock(s)
 
     # Add transaction to Transactions model
-    transaction = Transaction.objects.create(
+    Transaction.objects.create(
         owner=user, 
         symbol=stock.symbol, 
         asset_class="stock", 
@@ -38,6 +38,43 @@ def buy_stock(stock_symbol, user, shares):
     user_portfolio.update_cash(-total)
 
 
+@transaction.atomic
+def sell_stock(stock_symbol, user, shares):
+    stock = Stock.objects.get(symbol=stock_symbol)
+    user_portfolio = Portfolio.objects.get(owner=user)
+    total = float(stock.price) * float(shares)
+
+    # Check if stock in user portfolio
+    try:
+        stock_portfolio = StockPortfolio.objects.get(owner=user_portfolio, stock=stock)
+    except StockPortfolio.DoesNotExist:
+        return
+    
+    # Check if user has sufficient shares amount
+    if (float(stock_portfolio.shares) < shares):
+        return
+    if shares <= 0:
+        return
+    
+    # Remove shares or stock from portfolio
+    if shares == stock_portfolio.shares:
+        user_portfolio.remove_stock(stock)
+    stock_portfolio.remove_shares(shares)
+    
+    # Add transaction to Transactions model
+    Transaction.objects.create(
+        owner=user, 
+        symbol=stock.symbol, 
+        asset_class="stock", 
+        shares=-shares, 
+        price=stock.price, 
+        type="sell",
+    )
+
+    # Add cash to portfolio
+    user_portfolio.update_cash(total)
+    
+    
 @transaction.atomic
 def buy_crypto(crypto_symbol, user, shares):
     coin = Cryptocurrency.objects.get(symbol=crypto_symbol)
