@@ -1,18 +1,22 @@
 <template>
     <section class="section">
         <div class="box">
-            <CoinInfo :coin="coin" />
-            <BuyCryptoForm :coin="coin" :getCookie="getCookie" />
+            <div class="columns">
 
-            <article v-if="successMessageVisible" class="message is-primary my-5">
-                <div class="message-header">
-                    <p>Success!</p>
-                    <button @click="hideSuccessMessage" class="delete" aria-label="delete"></button>
+                <!-- coin info and buy option -->
+                <div class="column">
+                    <CoinInfo :coin="coin" />
+                    <BuyCryptoForm :coin="coin" :getCookie="getCookie" />
                 </div>
-                <div class="message-body">
-                    You've successfully purchased {{ shares }} shares of {{ coin.symbol }} for ${{ t }}.
+
+                <!-- sell option if user has stock in portfolio -->
+                <div v-if="coinInPortfolio(coin)" class="column">
+                    <CoinPortfolioInfo :coin="coin" />
                 </div>
-            </article>
+                
+            </div>
+            
+
         </div>
 
     </section>
@@ -21,19 +25,16 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import axios from 'axios'
 
 import BuyCryptoForm from '../components/BuyCryptoForm.vue'
 import CoinInfo from '../components/CoinInfo.vue'
+import CoinPortfolioInfo from '../components/CoinPortfolioInfo.vue'
 
 const coin = ref({})
-const successMessageVisible = ref(false)
-const t = ref()
 const route = useRoute()
-
-const total = () => {
-    t.value = coin.value.price * shares.value
-}
+const store = useStore()
 
 const getCoin = () => {
     const coinId = route.params.id
@@ -46,12 +47,6 @@ const getCoin = () => {
         })
 }
 onMounted(getCoin)
-
-
-
-const hideSuccessMessage = () => {
-    successMessageVisible.value = false
-}
 
 const getCookie = (name) => {
     let cookieValue = null;
@@ -68,5 +63,11 @@ const getCookie = (name) => {
     return cookieValue;
 }
 
-
+const coinInPortfolio = (coin) => {
+    const portfolio = store.state.portfolio
+    if (portfolio && portfolio.crypto) {
+        return portfolio.crypto.some(cryptoPortfolio => cryptoPortfolio.coin.symbol === coin.symbol)
+    }
+    return false;
+}
 </script>

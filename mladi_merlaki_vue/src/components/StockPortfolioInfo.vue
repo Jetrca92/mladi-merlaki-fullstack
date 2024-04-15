@@ -2,7 +2,7 @@
     <h3 class="title is-3">Your shares</h3>
     <h1 class="title is-1 mb-3">${{ Number(valueOfShares(stock)).toLocaleString() }}</h1>
     <p><strong>Number of shares: </strong> {{ sharesInPortfolio(stock) }}</p>
-    <p class="mb-3"><strong>Avg price: </strong> {{ averagePrice(stock) }}</p>
+    <p class="mb-3"><strong>Avg price: </strong> {{ averagePrice(stock).toLocaleString() }}</p>
 </template>
 
 <script setup>
