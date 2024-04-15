@@ -1,26 +1,26 @@
 <template>
-    <form @submit.prevent="submitSellForm" class="mb-3" v-if="store.state.isAuthenticated"> 
+    <form @submit.prevent="submitForm" class="mb-3" v-if="$store.state.isAuthenticated">
         <div class="field has-addons">
             <div class="control">
-                <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="1" step="1" v-model="shares">
+                <input autocomplete="off" class="input" id="shares" name="shares" placeholder="Shares" type="number" min="0.01" step="0.01" v-model="shares">
             </div>
             <div class="control">
-                <button class="button is-danger">Sell</button>
+                <button class="button is-info">Buy</button>
             </div>
         </div>
     </form>
 
     <p 
-        v-if="shares && shares > 0 && props.stock.price && shares <= sharesInPortfolio(props.stock)" 
+        v-if="shares && shares > 0 && props.coin.price && (shares * props.coin.price) <= store.state.portfolio.cash" 
         class="is-size-6 is-italic"
     >
-        Total: ${{ (shares * props.stock.price).toLocaleString() }}
+        Total: ${{ (shares * props.coin.price).toLocaleString() }}
     </p>
     <p 
-        v-if="shares && shares > sharesInPortfolio(props.stock)" 
+        v-if="shares && shares > 0 && props.coin.price && (shares * props.coin.price) >= store.state.portfolio.cash" 
         class="is-danger is-size-6 is-italic"
     >
-        Not enough shares in portfolio.
+        Not enough cash in portfolio.
     </p>
 
     <article v-if="successMessageVisible" class="message is-primary my-5">
@@ -29,7 +29,7 @@
             <button @click="hideSuccessMessage" class="delete" aria-label="delete"></button>
         </div>
         <div class="message-body">
-            You've successfully sold {{ shares }} shares of {{ props.stock.symbol }} for ${{ t }}.
+            You've successfully sold {{ shares }} shares of {{ props.coin.symbol }} for ${{ t }}.
         </div>
     </article>
 
@@ -50,13 +50,14 @@ import { useStore } from 'vuex'
 import axios from 'axios'
 
 const t = ref()
+const shares = ref()
+const store = useStore()
 const successMessageVisible = ref(false)
 const errorMessageVisible = ref(false)
 const errorMessageContent = ref('')
-const store = useStore()
-const shares = ref()
+
 const props = defineProps({
-    stock: {
+    coin: {
         type: Object,
         required: true
     },
@@ -66,19 +67,19 @@ const props = defineProps({
     },
 })
 
-const submitSellForm = async () => {
+const submitForm = async () => {
     if (!shares.value || shares.value <= 0) {
         errorMessageContent.value = 'Invalid number of shares!'
         errorMessageVisible.value = true
         return
     }
-    if (shares.value > sharesInPortfolio(props.stock)) {
-        errorMessageContent.value = 'Not enough shares in portfolio!'
+    if (shares.value * props.coin.price > store.state.portfolio.cash) {
+        errorMessageContent.value = 'Not enough cash in portfolio!'
         errorMessageVisible.value = true 
         return
     }
     const formData = {
-        stock: props.stock,
+        coin: props.coin,
         shares: shares.value,
     }
     const csrftoken = props.getCookie("csrftoken")
@@ -89,7 +90,7 @@ const submitSellForm = async () => {
         }
     }
     await axios
-        .post("/api/v1/portfolio/sell_stock/", formData, config)
+        .post("/api/v1/portfolio/buy_crypto/", formData, config)
         .then(response => {
             successMessageVisible.value = true 
             total()
@@ -98,12 +99,6 @@ const submitSellForm = async () => {
         .catch(error => {
         console.error(error)
         })
-}
-
-const sharesInPortfolio = (stock) => {
-    const portfolio = store.state.portfolio;
-    const stockPortfolio = portfolio.stocks.find(stockPortfolio => stockPortfolio.stock.symbol === stock.symbol)
-    return stockPortfolio ? stockPortfolio.shares : 0
 }
 
 const hideSuccessMessage = () => {
@@ -115,7 +110,6 @@ const hideErrorMessage = () => {
 }
 
 const total = () => {
-    t.value = props.stock.price * shares.value
+    t.value = props.coin.price * shares.value
 }
-
 </script>

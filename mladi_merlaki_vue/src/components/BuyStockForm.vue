@@ -68,7 +68,8 @@ const props = defineProps({
 
 const submitBuyForm = async () => {
     if (!shares.value || shares.value <= 0) {
-        console.error("Invalid number of shares");
+        errorMessageContent.value = 'Invalid number of shares!'
+        errorMessageVisible.value = true 
         return
     }
     if (shares.value * props.stock.price > store.state.portfolio.cash) {

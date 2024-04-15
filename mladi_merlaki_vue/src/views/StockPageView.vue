@@ -7,9 +7,6 @@
                 <div class="column">
                     <StockInfo :stock="stock" />
                     <BuyStockForm :stock="stock" :getCookie="getCookie" />
-                    
-                    
-
                 </div>
 
                 <!-- sell option if user has stock in portfolio -->

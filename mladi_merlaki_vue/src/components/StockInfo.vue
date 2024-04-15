@@ -11,5 +11,5 @@
 </template>
 
 <script setup>
-const { props } = defineProps(['stock'])
+const props = defineProps(['stock'])
 </script>
