@@ -110,6 +110,43 @@ def buy_crypto(crypto_symbol, user, shares):
     user_portfolio.add_transaction(transaction)
 
 
+@transaction.atomic
+def sell_crypto(coin_symbol, user, shares):
+    coin = Cryptocurrency.objects.get(symbol=coin_symbol)
+    user_portfolio = Portfolio.objects.get(owner=user)
+    total = float(coin.price) * float(shares)
+
+    # Check if coin in user portfolio
+    try:
+        crypto_portfolio = CryptoPortfolio.objects.get(owner=user_portfolio, coin=coin)
+    except CryptoPortfolio.DoesNotExist:
+        return
+    
+    # Check if user has sufficient shares amount
+    if (float(crypto_portfolio.shares) < shares):
+        return
+    if shares <= 0:
+        return
+    
+    # Remove shares or coin from portfolio
+    if shares == crypto_portfolio.shares:
+        user_portfolio.remove_crypto(coin)
+    crypto_portfolio.remove_shares(shares)
+    
+    # Add transaction to Transactions model
+    Transaction.objects.create(
+        owner=user, 
+        symbol=coin.symbol, 
+        asset_class="crypto", 
+        shares=-shares, 
+        price=coin.price, 
+        type="sell",
+    )
+
+    # Add cash to portfolio
+    user_portfolio.update_cash(total)
+
+
 def calculate_portfolio_rankings(portfolios):
     data = []
     for portfolio in portfolios:

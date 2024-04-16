@@ -12,13 +12,11 @@
                 <!-- sell option if user has stock in portfolio -->
                 <div v-if="coinInPortfolio(coin)" class="column">
                     <CoinPortfolioInfo :coin="coin" />
+                    <SellCryptoForm :coin="coin" :getCookie="getCookie" />
                 </div>
-                
+
             </div>
-            
-
         </div>
-
     </section>
 </template>
 
@@ -31,6 +29,7 @@ import axios from 'axios'
 import BuyCryptoForm from '../components/BuyCryptoForm.vue'
 import CoinInfo from '../components/CoinInfo.vue'
 import CoinPortfolioInfo from '../components/CoinPortfolioInfo.vue'
+import SellCryptoForm from '../components/SellCryptoForm.vue'
 
 const coin = ref({})
 const route = useRoute()

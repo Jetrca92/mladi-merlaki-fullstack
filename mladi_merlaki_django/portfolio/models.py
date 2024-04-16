@@ -27,6 +27,10 @@ class Portfolio(models.Model):
         self.crypto.add(coin)
         self.save()
 
+    def remove_crypto(self, coin):
+        self.crypto.remove(coin)
+        self.save()
+
     def add_transaction(self, transaction):
         self.transactions.add(transaction)
         self.save()
@@ -77,6 +81,11 @@ class CryptoPortfolio(models.Model):
     def add_shares(self, shares):
         self.shares += shares
         self.save()
+
+    def remove_shares(self, shares):
+        if shares <= self.shares and shares > 0:
+            self.shares -= shares
+            self.save()
 
     def total(self):
         return self.coin.price * self.shares

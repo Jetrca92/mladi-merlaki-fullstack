@@ -7,6 +7,7 @@ urlpatterns = [
     path('buy_stock/', views.BuyStockView.as_view()),
     path('sell_stock/', views.SellStockView.as_view()),
     path('buy_crypto/', views.BuyCryptoView.as_view()),
+    path('sell_crypto/', views.SellCryptoView.as_view()),
     path('transactions/', views.TransactionsView.as_view()),
     path('rankings/', views.RankingsView.as_view()),
 ]
