@@ -88,8 +88,8 @@ def market_update(date):
     if last_update_date and last_update_date.date() == datetime.today().date():
         return
     
-    #update_crypto_data()
-    #update_stock_data()
+    update_crypto_data()
+    update_stock_data()
     save_last_update_date(datetime.today())
 
 
