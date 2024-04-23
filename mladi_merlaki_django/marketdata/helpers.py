@@ -22,11 +22,21 @@ def update_stock_data():
         "isFund": False,
     }
 
-    response = requests.get(url, params=params)
-    data = response.json()
-    print(data)
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as e:
+        print(f"Error fetching data from API: {e}")
+        return  
+    
     # Update or create a new instance of Stock with the provided data
     for stock in data:
+
+        if stock.get("companyName") is None:
+            # Skip stocks with null company names
+            continue
+
         Stock.objects.update_or_create(
             symbol=stock["symbol"],
             defaults={
@@ -96,7 +106,7 @@ def market_update(date):
 def calculate_monthly_volume():
     current_month = timezone.now().month
     monthly_transactions = Transaction.objects.filter(date__month=current_month)
-    return sum(transaction.total() for transaction in monthly_transactions)
+    return round(sum(transaction.total() for transaction in monthly_transactions), 2)
 
 def calculate_yearly_transactions():
     current_year = timezone.now().year

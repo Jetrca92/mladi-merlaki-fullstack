@@ -39,6 +39,6 @@ class CryptoSerializer(serializers.ModelSerializer):
 
 
 class AppInfoSerializer(serializers.Serializer):
-    monthly_volume = serializers.DecimalField(max_digits=12, decimal_places=2)
-    transactions = serializers.DecimalField(max_digits=10, decimal_places=2)
+    monthly_volume = serializers.DecimalField(max_digits=20, decimal_places=2, rounding='ROUND_HALF_UP')
+    transactions = serializers.IntegerField()
     users = serializers.IntegerField()

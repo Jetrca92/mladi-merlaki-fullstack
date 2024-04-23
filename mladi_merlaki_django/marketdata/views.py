@@ -69,5 +69,7 @@ class AppdataView(APIView):
         serializer = AppInfoSerializer(data=app_data)
         if serializer.is_valid():
             return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
         
         

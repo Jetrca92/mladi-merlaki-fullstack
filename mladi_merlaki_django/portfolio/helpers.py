@@ -25,7 +25,7 @@ def buy_stock(stock_symbol, user, shares):
     user_portfolio.add_stock(s)
 
     # Add transaction to Transactions model
-    Transaction.objects.create(
+    transaction = Transaction.objects.create(
         owner=user, 
         symbol=stock.symbol, 
         asset_class="stock", 
@@ -34,8 +34,9 @@ def buy_stock(stock_symbol, user, shares):
         type="buy",
     )
 
-    # Deduct price from users cash
+    # Deduct price from users cash add transaction to portfolio
     user_portfolio.update_cash(-total)
+    user_portfolio.add_transaction(transaction)
 
 
 @transaction.atomic
@@ -58,7 +59,7 @@ def sell_stock(stock_symbol, user, shares):
     
     # Remove shares or stock from portfolio
     if shares == stock_portfolio.shares:
-        user_portfolio.remove_stock(stock)
+        user_portfolio.remove_stock(stock_portfolio)
     stock_portfolio.remove_shares(shares)
     
     # Add transaction to Transactions model
@@ -130,7 +131,7 @@ def sell_crypto(coin_symbol, user, shares):
     
     # Remove shares or coin from portfolio
     if shares == crypto_portfolio.shares:
-        user_portfolio.remove_crypto(coin)
+        user_portfolio.remove_crypto(crypto_portfolio)
     crypto_portfolio.remove_shares(shares)
     
     # Add transaction to Transactions model

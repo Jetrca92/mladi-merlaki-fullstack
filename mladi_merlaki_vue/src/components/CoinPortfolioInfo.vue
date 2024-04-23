@@ -27,7 +27,7 @@ const averagePrice = (coin) => {
     if (!transactions || transactions.length === 0) {
         return null; // Return null if transactions is null or empty
     }
-    const symbolTransactions = transactions.filter(transaction => transaction.symbol === coin.symbol)
+    const symbolTransactions = transactions.filter(transaction => transaction.symbol === coin.symbol && transaction.type === "buy")
     if (symbolTransactions.length === 0) {
         return null; // Return null if there are no transactions for the symbol
     }

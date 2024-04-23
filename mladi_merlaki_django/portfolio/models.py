@@ -110,4 +110,4 @@ class Transaction(models.Model):
         return f"{self.owner} {self.type} {self.shares} shares of {self.asset_class} at {self.price} on {self.date}"
     
     def total(self):
-        return self.shares * self.price
+        return abs(self.shares) * self.price
