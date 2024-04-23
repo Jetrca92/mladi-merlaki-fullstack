@@ -36,58 +36,53 @@
     </section>
 </template>
 
-<script>
+<script setup>
 import axios from 'axios'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
-export default {
-    name: 'LogIn',
-    data() {
-        return {
-            username: '',
-            password: '',
-            errors: []
-        }
-    },
-    mounted() {
-        document.title = 'Log In | Mladi Merlaki'
-    },
-    methods: {
-        async submitForm() {
-            axios.defaults.headers.common["Authorization"] = ""
-        
-            
-            const formData = {
-                username: this.username,
-                password: this.password
-            }
-            await axios
-                .post("/api/v1/token/login/", formData)
-                .then(response => {
-                    const token = response.data.auth_token
+const store = useStore()
+const username = ref('')
+const password = ref('')
+const errors = ref([])
+const token = ref('')
+const router = useRouter()
 
-                    this.$store.commit('setToken', token)
-
-                    axios.defaults.headers.common["Authorization"] = "Token " + token
-
-                    localStorage.setItem("token", token)
-
-                    const toPath = this.$route.query.to || '/'
-
-                    this.$router.push(toPath)  
-                })
-                .catch(error => {
-                    if (error.response) {
-                        for (const property in error.response.data) {
-                            this.errors.push(`${property}: ${error.response.data[propertyy]}`)
-                        }
-                    } else {
-                        this.errors.push('Something went wrong. Please try again.')
-                        console.log(JSON.stringify(error))
-                    }
-                })
-        }
-    }
+const setToken = (token) => {
+  store.commit('setToken', token)
 }
 
+const setAuthorizationHeader = (token) => {
+  axios.defaults.headers.common['Authorization'] = `Token ${token}`
+}
+
+const submitForm = () => {
+    axios.defaults.headers.common["Authorization"] = ""
+
+    const formData = {
+        username: username.value,
+        password: password.value
+    }
+    axios.post("/api/v1/token/login/", formData)
+        .then(response => {
+            token.value = response.data.auth_token
+            setToken(token.value)
+            setAuthorizationHeader(token.value)
+            localStorage.setItem('token', token)
+            store.dispatch('fetchPortfolio')
+            router.push('/')
+        })
+        .catch(error => {
+            if (error.response) {
+                for (const property in error.response.data) {
+                    errors.value.push(`${property}: ${error.response.data[property]}`)
+                }
+            } else {
+                errors.value.push('Something went wrong. Please try again.')
+                console.error(JSON.stringify(error))
+            }
+        });
+}
 
 </script>

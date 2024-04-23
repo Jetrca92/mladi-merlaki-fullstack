@@ -40,30 +40,12 @@ const logout = () => {
     <div id="navbarBasicExample" class="navbar-menu" :class="{'is-active': showMobileMenu}">
       <div class="navbar-start">
         <router-link to="/" class="navbar-item">Home</router-link>
-        
-  
-        <a class="navbar-item">
-          Documentation
-        </a>
-  
-        <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            More
-          </a>
-  
-          <div class="navbar-dropdown">
-            <a class="navbar-item">
-              About
-            </a>
-            <a class="navbar-item">
-              Contact
-            </a>
-            <hr class="navbar-divider">
-            <a class="navbar-item">
-              Report an issue
-            </a>
-          </div>
-        </div>
+        <router-link to="/learn" class="navbar-item">Learn</router-link>
+        <router-link to="/stocks" class="navbar-item">Stocks</router-link>
+        <router-link to="/cryptocurrency" class="navbar-item">Cryptocurrency</router-link>
+        <router-link to="/portfolio" class="navbar-item" v-if="$store.state.isAuthenticated">Portfolio</router-link>
+        <router-link to="/history" class="navbar-item" v-if="$store.state.isAuthenticated">History</router-link>
+        <router-link to="/rankings" class="navbar-item">Rankings</router-link>
       </div>
   
       <div class="navbar-end">
