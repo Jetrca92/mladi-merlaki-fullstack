@@ -63,8 +63,14 @@ def update_crypto_data():
         "page": 1,
         "sparkline": False,
     }
-    response = requests.get(url, params=params)
-    data = response.json()
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as e:
+        print(f"Error fetching data from API: {e}")
+        return  
+    
     for coin in data:
         Cryptocurrency.objects.update_or_create(
             symbol=coin["symbol"].upper(),
