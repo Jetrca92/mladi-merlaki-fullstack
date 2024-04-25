@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from portfolio.helpers import buy_stock, sell_stock, buy_crypto, sell_crypto, calculate_portfolio_rankings
+from portfolio.services import StockTransactionsService, CryptocurrencyTransactionsService, PortfolioService
 from portfolio.models import Portfolio, Transaction
 from portfolio.serializers import (
     PortfolioSerializer, 
@@ -34,7 +34,11 @@ class BuyStockView(APIView):
         if serializer.is_valid():
 
             # Add stock to portfolio
-            buy_stock(serializer.validated_data["stock"]["symbol"], request.user, serializer.validated_data["shares"])
+            StockTransactionsService.buy_stock(
+                serializer.validated_data["stock"]["symbol"], 
+                request.user, 
+                serializer.validated_data["shares"]
+            )
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -49,7 +53,11 @@ class SellStockView(APIView):
         if serializer.is_valid():
 
             # Remove stock from portfolio
-            sell_stock(serializer.validated_data["stock"]["symbol"], request.user, serializer.validated_data["shares"])
+            StockTransactionsService.sell_stock(
+                serializer.validated_data["stock"]["symbol"], 
+                request.user, 
+                serializer.validated_data["shares"]
+            )
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -64,7 +72,11 @@ class BuyCryptoView(APIView):
         if serializer.is_valid():
 
             # Add crypto to portfolio
-            buy_crypto(serializer.validated_data["coin"]["symbol"], request.user, serializer.validated_data["shares"])
+            CryptocurrencyTransactionsService.buy_crypto(
+                serializer.validated_data["coin"]["symbol"], 
+                request.user, 
+                serializer.validated_data["shares"]
+            )
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -79,7 +91,11 @@ class SellCryptoView(APIView):
         if serializer.is_valid():
 
             # Remove stock from portfolio
-            sell_crypto(serializer.validated_data["coin"]["symbol"], request.user, serializer.validated_data["shares"])
+            CryptocurrencyTransactionsService.sell_crypto(
+                serializer.validated_data["coin"]["symbol"], 
+                request.user, 
+                serializer.validated_data["shares"]
+            )
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -99,7 +115,7 @@ class RankingsView(APIView):
 
     def get(self, request, format=None):
         portfolios = Portfolio.objects.all()[0:100]
-        rankings = calculate_portfolio_rankings(portfolios)
+        rankings = PortfolioService.calculate_portfolio_rankings(portfolios)
         serializer = RankingsSerializer(rankings, many=True)
         return Response(serializer.data)
 

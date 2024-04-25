@@ -1,19 +1,17 @@
 import json
 import os
 import unittest
-from requests.exceptions import RequestException
+from unittest.mock import patch, Mock, MagicMock
 
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.timezone import datetime
-from unittest.mock import patch, Mock, MagicMock
-
 from marketdata.models import Stock, Cryptocurrency
 from marketdata.services import AppDataService, StockService, CryptocurrencyService, MarketDataService
 from marketdata.utils import load_last_update_date, save_last_update_date
-from portfolio.models import Transaction
+from requests.exceptions import RequestException
 
 
 class AppDataServicesTest(TestCase):
