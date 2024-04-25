@@ -9,7 +9,11 @@ class StockTransactionsService:
     @staticmethod
     @transaction.atomic
     def buy_stock(stock_symbol, user, shares):
-        stock = Stock.objects.get(symbol=stock_symbol)
+        try:
+            stock = Stock.objects.get(symbol=stock_symbol)
+        except Stock.DoesNotExist:
+            return
+        
         total = float(stock.price) * float(shares)
 
         # Check if user has sufficient balance
@@ -44,7 +48,10 @@ class StockTransactionsService:
     @staticmethod
     @transaction.atomic
     def sell_stock(stock_symbol, user, shares):
-        stock = Stock.objects.get(symbol=stock_symbol)
+        try:
+            stock = Stock.objects.get(symbol=stock_symbol)
+        except Stock.DoesNotExist:
+            return
         user_portfolio = Portfolio.objects.get(owner=user)
         total = float(stock.price) * float(shares)
 
