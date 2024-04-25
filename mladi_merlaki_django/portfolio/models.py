@@ -58,8 +58,9 @@ class StockPortfolio(models.Model):
     shares = models.IntegerField(default=0)
 
     def add_shares(self, shares):
-        self.shares += shares
-        self.save()
+        if shares > 0:
+            self.shares += shares
+            self.save()
 
     def remove_shares(self, shares):
         if shares <= self.shares and shares > 0:
@@ -79,8 +80,9 @@ class CryptoPortfolio(models.Model):
     shares = models.FloatField(default=0)
 
     def add_shares(self, shares):
-        self.shares += shares
-        self.save()
+        if shares > 0:
+            self.shares += shares
+            self.save()
 
     def remove_shares(self, shares):
         if shares <= self.shares and shares > 0:
