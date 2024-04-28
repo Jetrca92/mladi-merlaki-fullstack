@@ -91,7 +91,10 @@ class CryptocurrencyTransactionsService:
     @staticmethod
     @transaction.atomic
     def buy_crypto(crypto_symbol, user, shares):
-        coin = Cryptocurrency.objects.get(symbol=crypto_symbol)
+        try:
+            coin = Cryptocurrency.objects.get(symbol=crypto_symbol)
+        except Cryptocurrency.DoesNotExist:
+            return
         total = float(coin.price) * float(shares)
 
         # Check if user has sufficient balance
@@ -126,7 +129,10 @@ class CryptocurrencyTransactionsService:
     @staticmethod
     @transaction.atomic
     def sell_crypto(coin_symbol, user, shares):
-        coin = Cryptocurrency.objects.get(symbol=coin_symbol)
+        try:
+            coin = Cryptocurrency.objects.get(symbol=coin_symbol)
+        except Cryptocurrency.DoesNotExist:
+            return
         user_portfolio = Portfolio.objects.get(owner=user)
         total = float(coin.price) * float(shares)
 

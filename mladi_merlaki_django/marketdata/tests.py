@@ -132,18 +132,18 @@ class MarketDataServiceTest(TestCase):
             {
                 "name": "Bitcoin",
                 "symbol": "BTC",
-                "logo": "https://example.com/bitcoin_logo.png",
+                "image": "https://example.com/bitcoin_logo.png",
                 "market_cap": 1000000000000,
-                "price": 50000.00,
-                "volume": 1000000
+                "current_price": 50000.00,
+                "total_volume": 1000000
             },
             {
                 "name": "Ethereum",
                 "symbol": "ETH",
-                "logo": "https://example.com/ethereum_logo.png",
+                "image": "https://example.com/ethereum_logo.png",
                 "market_cap": 500000000000,
-                "price": 2500.00,
-                "volume": 500000
+                "current_price": 2500.00,
+                "total_volume": 500000
             },
         ]
 

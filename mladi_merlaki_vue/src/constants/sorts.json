@@ -1,0 +1,8 @@
+{
+    "options": [
+        {"value": "-market_cap", "label": "Market cap descending"},
+        {"value": "market_cap", "label": "Market cap ascending"},
+        {"value": "-volume", "label": "Volume descending"},
+        {"value": "volume", "label": "Volume ascending"}
+    ]
+}

@@ -28,6 +28,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { format } from 'date-fns'
 import axios from 'axios'
 
 const transactions = ref([])
@@ -44,13 +45,6 @@ const getTransactions = () => {
 onMounted(getTransactions)
 
 const formatDate = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based, so we add 1
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    return `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
+    return format(new Date(dateTimeString), 'dd/MM/yyyy - HH:mm:ss');
 }
 </script>

@@ -80,10 +80,10 @@ class MarketDataService:
                 symbol=coin["symbol"].upper(),
                 defaults={
                     "name": coin["name"],
-                    "logo": coin["logo"],
+                    "logo": coin["image"],
                     "market_cap": coin["market_cap"],
-                    "price": coin["price"],
-                    "volume": coin["volume"]
+                    "price": coin["current_price"],
+                    "volume": coin["total_volume"]
                 }
             )
 

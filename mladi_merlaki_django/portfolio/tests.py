@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from marketdata.models import Stock, Cryptocurrency
 from portfolio.models import Portfolio, StockPortfolio, CryptoPortfolio, Transaction
-from portfolio.services import StockTransactionsService
+from portfolio.services import StockTransactionsService, CryptocurrencyTransactionsService, PortfolioService
 
 
 class PortfolioModelTest(TestCase):
@@ -288,3 +288,240 @@ class SellStockServiceTest(TestCase):
 
         StockTransactionsService.sell_stock("FBB", self.user, 5)
         self.assertEqual(Transaction.objects.filter(owner=self.user, symbol="FBB", type="sell").count(), 0)
+
+
+class BuyCryptocurrenyServiceTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test_user')
+        self.portfolio = Portfolio.objects.create(owner=self.user, cash=100000)
+        self.coin = Cryptocurrency.objects.create(
+            name="TestCoin",
+            symbol="TTC",
+            logo="none",
+            market_cap=120000,
+            price=1000,
+            volume=14000,
+        )
+
+    def test_buy_cryptocurrency_sufficient_balance(self):
+        starting_balance = self.portfolio.cash
+        shares_to_buy = 5
+
+        # No transactions or coin
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="buy").count(), 0)
+        self.assertFalse(self.portfolio.crypto.filter(coin=self.coin))
+
+        CryptocurrencyTransactionsService.buy_crypto(self.coin.symbol, self.user, shares_to_buy)
+
+        # Transaction created, coin added to portfolio, cash withdrawn
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="buy").count(), 1)
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+        user_portfolio = Portfolio.objects.get(owner=self.user)
+        self.assertEqual(user_portfolio.cash, (starting_balance - (self.coin.price * shares_to_buy)))
+
+    def test_buy_crypto_insufficient_balance(self):
+        self.portfolio.cash = 0
+        self.portfolio.save()
+        shares_to_buy = 5
+
+        CryptocurrencyTransactionsService.buy_crypto(self.coin.symbol, self.user, shares_to_buy)
+
+        # No cash, transaction shouldn't complete
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="buy").count(), 0)
+        self.assertFalse(self.portfolio.crypto.filter(coin=self.coin))
+
+    def test_buy_crypto_zero_negative_shares(self):
+        shares_to_buy = -5
+        zero_shares = 0
+        CryptocurrencyTransactionsService.buy_crypto(self.coin.symbol, self.user, shares_to_buy)
+        CryptocurrencyTransactionsService.buy_crypto(self.coin.symbol, self.user, zero_shares)
+
+        # No transactions when shares <= 0
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="buy").count(), 0)
+        self.assertFalse(self.portfolio.crypto.filter(coin=self.coin))
+
+    def test_buy_crypto_does_not_exist(self):
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol="FBB", type="buy").count(), 0)
+
+        CryptocurrencyTransactionsService.buy_crypto("FBB", self.user, 5)
+
+        # No transaction if coin does not exist
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="buy").count(), 0)
+    
+
+class SellCryptocurrencyServiceTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(username='test_user')
+        self.portfolio = Portfolio.objects.create(owner=self.user, cash=100000)
+        self.coin = Cryptocurrency.objects.create(
+            name="TestCoin",
+            symbol="TTC",
+            logo="none",
+            market_cap=120000,
+            price=1000,
+            volume=14000,
+        )
+        self.crypto_portfolio = CryptoPortfolio.objects.create(
+            owner=self.portfolio,
+            coin=self.coin,
+            shares=5,
+        )
+        self.portfolio.add_crypto(self.crypto_portfolio)
+
+    def test_sell_crypto_sufficient_shares(self):
+        starting_balance = self.portfolio.cash
+        shares_to_sell = 4
+
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="sell").count(), 0)
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+
+        CryptocurrencyTransactionsService.sell_crypto(self.coin.symbol, self.user, shares_to_sell)
+
+        # Sell transaction created, coin should still be in portfolio (1 share), cash updated
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="sell").count(), 1)
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+        user_portfolio = Portfolio.objects.get(owner=self.user)
+        self.assertEqual(user_portfolio.cash, (starting_balance + (self.coin.price * shares_to_sell)))
+
+    def test_sell_crypto_equal_shares(self):
+        shares_to_sell = 5
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+
+        CryptocurrencyTransactionsService.sell_crypto(self.coin.symbol, self.user, shares_to_sell)
+
+        # All shares sold, coin should be removed
+        self.assertFalse(self.portfolio.crypto.filter(coin=self.coin))
+
+    def test_sell_crypto_invalid_shares(self):
+        shares_to_sell = 6
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="sell").count(), 0)
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+
+        CryptocurrencyTransactionsService.sell_crypto(self.coin.symbol, self.user, shares_to_sell)
+
+        # No transaction or sell, shares invalid 
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol=self.coin.symbol, type="sell").count(), 0)
+        self.assertTrue(self.portfolio.crypto.filter(coin=self.coin))
+
+    def test_sell_crypto_does_not_exist(self):
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol="TFBB", type="sell").count(), 0)
+        self.assertFalse(self.portfolio.crypto.filter(coin__symbol="TFBB"))
+
+        CryptocurrencyTransactionsService.sell_crypto("TFBB", self.user, 5)
+        self.assertEqual(Transaction.objects.filter(owner=self.user, symbol="TFBB", type="sell").count(), 0)
+
+
+class PortolioServiceTest(TestCase):
+
+    def setUp(self):
+        # Create users, some stocks and crpytos and add to portfolios
+        self.user1 = User.objects.create(username='user1')
+        self.user2 = User.objects.create(username='user2')
+        self.user3 = User.objects.create(username='user3')
+
+        self.stock1 = Stock.objects.create(
+            name='Apple Inc.',
+            symbol='AAPL',
+            market_cap=2000000000000,
+            sector='Technology',
+            price=150.0,
+            dividend=0.75,
+            volume=1000000,
+            country='USA',
+            exchange='NASDAQ',
+            is_etf=False
+        )
+        self.stock2 = Stock.objects.create(
+            name='Alphabet Inc.',
+            symbol='GOOGL',
+            market_cap=1800000000000,
+            sector='Technology',
+            price=2800.0,
+            dividend=0.0,
+            volume=800000,
+            country='USA',
+            exchange='NASDAQ',
+            is_etf=False
+        )
+
+        self.crypto1 = Cryptocurrency.objects.create(
+            name='Bitcoin',
+            symbol='BTC',
+            logo='https://example.com/bitcoin_logo.png',
+            market_cap=1000000000000,
+            price=45000.0,
+            volume=500000,
+        )
+        self.crypto2 = Cryptocurrency.objects.create(
+            name='Ethereum',
+            symbol='ETH',
+            logo='https://example.com/ethereum_logo.png',
+            market_cap=500000000000,
+            price=3000.0,
+            volume=300000,
+        )
+
+        self.portfolio1 = Portfolio.objects.create(owner=self.user1, cash=100000)
+        self.portfolio2 = Portfolio.objects.create(owner=self.user2, cash=80000)
+        self.portfolio3 = Portfolio.objects.create(owner=self.user3, cash=50000)
+        self.empty_portfolio = Portfolio.objects.create(owner=self.user1, cash=0)
+
+        self.stock_portfolio1 = StockPortfolio.objects.create(owner=self.portfolio1, stock=self.stock1, shares=20)
+        self.crypto_portfolio1 = CryptoPortfolio.objects.create(owner=self.portfolio1, coin=self.crypto1, shares=20)
+
+        self.stock_portfolio2 = StockPortfolio.objects.create(owner=self.portfolio2, stock=self.stock2, shares=5)
+        self.crypto_portfolio2 = CryptoPortfolio.objects.create(owner=self.portfolio2, coin=self.crypto2, shares=13)
+
+        self.stock_portfolio3 = StockPortfolio.objects.create(owner=self.portfolio3, stock=self.stock1, shares=1)
+        self.crypto_portfolio3 = CryptoPortfolio.objects.create(owner=self.portfolio3, coin=self.crypto2, shares=1)
+
+        self.portfolio1.add_stock(self.stock_portfolio1)
+        self.portfolio1.add_crypto(self.crypto_portfolio1)
+        self.portfolio2.add_stock(self.stock_portfolio2)
+        self.portfolio2.add_crypto(self.crypto_portfolio2)
+        self.portfolio3.add_stock(self.stock_portfolio3)
+        self.portfolio3.add_crypto(self.crypto_portfolio3)
+
+    def test_portfolio_rankings_basic(self): 
+        expected_rankings = [
+            {
+                "username": self.portfolio1.owner.username,
+                "stocks_total": self.portfolio1.calculate_stock_total(),
+                "crypto_total": self.portfolio1.calculate_crypto_total(),
+                "cash": self.portfolio1.cash,
+                "total": self.portfolio1.cash + float(self.portfolio1.calculate_crypto_total()) + float(self.portfolio1.calculate_stock_total())
+            },
+            {
+                "username": self.portfolio2.owner.username,
+                "stocks_total": self.portfolio2.calculate_stock_total(),
+                "crypto_total": self.portfolio2.calculate_crypto_total(),
+                "cash": self.portfolio2.cash,
+                "total": self.portfolio2.cash + float(self.portfolio2.calculate_crypto_total()) + float(self.portfolio2.calculate_stock_total())
+            },
+            {
+                "username": self.portfolio3.owner.username,
+                "stocks_total": self.portfolio3.calculate_stock_total(),
+                "crypto_total": self.portfolio3.calculate_crypto_total(),
+                "cash": self.portfolio3.cash,
+                "total": self.portfolio3.cash + float(self.portfolio3.calculate_crypto_total()) + float(self.portfolio3.calculate_stock_total())
+            },
+            {
+                "username": self.portfolio1.owner.username,
+                "stocks_total": self.empty_portfolio.calculate_stock_total(),
+                "crypto_total": self.empty_portfolio.calculate_crypto_total(),
+                "cash": self.empty_portfolio.cash,
+                "total": self.empty_portfolio.cash + float(self.empty_portfolio.calculate_crypto_total()) + float(self.empty_portfolio.calculate_stock_total())
+            }
+        ]
+        calculated_rankings = PortfolioService.calculate_portfolio_rankings(Portfolio.objects.all())
+
+        self.assertEqual(expected_rankings, calculated_rankings)
+
+    def test_portfolio_rankings_empty(self):
+        rankings = PortfolioService.calculate_portfolio_rankings([])
+
+        # Should return empty list
+        self.assertEqual([], rankings)
+        

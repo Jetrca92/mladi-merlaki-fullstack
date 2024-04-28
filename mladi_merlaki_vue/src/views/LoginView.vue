@@ -77,6 +77,7 @@ const submitForm = () => {
             if (error.response) {
                 for (const property in error.response.data) {
                     errors.value.push(`${property}: ${error.response.data[property]}`)
+                    errors.value == ''
                 }
             } else {
                 errors.value.push('Something went wrong. Please try again.')

@@ -25,10 +25,7 @@
                         <div class="control">
                             <div class="select">
                                 <select name="sort" id="sort" v-model="selectedSort" @change="sortBy">
-                                    <option value="-market_cap">Market cap descending</option>
-                                    <option value="market_cap">Market cap ascending</option>
-                                    <option value="-volume">Volume descending</option>
-                                    <option value="volume">Volume ascending</option>
+                                    <option v-for="option in sortOptions" :value="option.value">{{ option.label }}</option>
                                 </select>
                             </div>
                         </div>
@@ -90,9 +87,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import sorts from '../constants/sorts.json'
 
 const stocks = ref([])
 const selectedSort = ref('-market_cap')
+const sortOptions = sorts.options
 const filterInput = ref('')
 const itemsPerPage = 100
 let currentPage = ref(1)
@@ -122,8 +121,8 @@ const sortedStocks = computed(() => {
             return 0
         }
     })
-    if(filterInput.value !== "") {
-        return copiedStocks.filter(stock => stock.name.toLowerCase().includes(filterInput.value.toLowerCase()));
+    if(filterInput.value.trim() !== "") {
+        return copiedStocks.filter(stock => stock.name && stock.name.toLowerCase().includes(filterInput.value.toLowerCase()));
     } 
     return copiedStocks
 })

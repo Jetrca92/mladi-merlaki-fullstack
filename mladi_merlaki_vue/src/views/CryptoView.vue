@@ -25,10 +25,7 @@
                         <div class="control">
                             <div class="select">
                                 <select name="sort" id="sort" v-model="selectedSort" @change="sortBy">
-                                    <option value="-market_cap">Market cap descending</option>
-                                    <option value="market_cap">Market cap ascending</option>
-                                    <option value="-volume">Volume descending</option>
-                                    <option value="volume">Volume ascending</option>
+                                    <option v-for="option in sortOptions" :value="option.value">{{ option.label }}</option>
                                 </select>
                             </div>
                         </div>
@@ -84,9 +81,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import sorts from '../constants/sorts.json'
 
 const crypto = ref([])
 const selectedSort = ref('-market_cap')
+const sortOptions = sorts.options
 const filterInput = ref('')
 const itemsPerPage = 100
 let currentPage = ref(1)
@@ -95,10 +94,10 @@ let currentPage = ref(1)
 const getCryptoData = () => {
     axios.get(`api/v1/marketdata/crypto/`)
         .then(response => {
-        crypto.value = response.data
+            crypto.value = response.data
         })
         .catch(error => {
-        console.error(error)
+            console.error(error)
         })
 }
 onMounted(getCryptoData)
@@ -116,8 +115,8 @@ const sortedCrypto = computed(() => {
             return 0
         }
     })
-    if(filterInput.value !== "") {
-        return copiedCrypto.filter(coin => coin.name.toLowerCase().includes(filterInput.value.toLowerCase()));
+    if(filterInput.value.trim() !== "") {
+        return copiedCrypto.filter(coin => coin.name && coin.name.toLowerCase().includes(filterInput.value.toLowerCase()));
     } 
     return copiedCrypto
 })
